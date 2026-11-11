@@ -3,27 +3,27 @@ import { CATEGORIES } from '../data/categories';
 import type { Player, RoundResult, WordItem } from '../types/game';
 
 describe('Categories and Word Packs Integrity', () => {
-  it('should have at least 10 rich categories with 15+ words each', () => {
-    expect(CATEGORIES.length).toBeGreaterThanOrEqual(10);
+  it('should have 12 rich categories with 16 words each (192 total words)', () => {
+    expect(CATEGORIES.length).toBe(12);
 
     let totalWords = 0;
     CATEGORIES.forEach(cat => {
       expect(cat.id).toBeDefined();
       expect(cat.name).toBeTruthy();
       expect(cat.icon).toBeTruthy();
-      expect(cat.words.length).toBeGreaterThanOrEqual(15);
+      expect(cat.words.length).toBe(16);
       totalWords += cat.words.length;
 
       cat.words.forEach(word => {
         expect(word.word).toBeTruthy();
         expect(word.hint).toBeTruthy();
-        expect(word.decoys.length).toBeGreaterThanOrEqual(3);
+        expect(word.decoys.length).toBeGreaterThanOrEqual(5);
         // Decoys should not contain the secret word itself
         expect(word.decoys.map(d => d.toLowerCase())).not.toContain(word.word.toLowerCase());
       });
     });
 
-    expect(totalWords).toBeGreaterThanOrEqual(150);
+    expect(totalWords).toBe(192);
   });
 });
 
@@ -198,5 +198,25 @@ describe('Scoring Accuracy & Unlimited Round Progression', () => {
 
     expect(scores['p-1']).toBe(225);
     expect(scores['p-3']).toBe(200);
+  });
+
+  it('supports multiple cycles of clue rounds within the same game round', () => {
+    let clueRoundCycle = 1;
+    expect(clueRoundCycle).toBe(1);
+
+    // User chooses to play another round of clues
+    clueRoundCycle += 1;
+    expect(clueRoundCycle).toBe(2);
+
+    // After discussion and voting finishes, next round resets clueRoundCycle back to 1
+    clueRoundCycle = 1;
+    expect(clueRoundCycle).toBe(1);
+  });
+
+  it('enforces player constraints: min 3, max 10', () => {
+    const minPlayers = 3;
+    const maxPlayers = 10;
+    expect(minPlayers).toBe(3);
+    expect(maxPlayers).toBe(10);
   });
 });

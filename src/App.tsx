@@ -53,7 +53,7 @@ const GameShell: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0E1B] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/30 via-[#0B0E1B] to-[#070913] text-slate-100 flex flex-col justify-between relative overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-[#0B0E1B] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/30 via-[#0B0E1B] to-[#070913] text-slate-100 flex flex-col justify-between relative overflow-x-hidden pt-safe pb-safe px-safe">
       {/* Background ambient decorative shapes */}
       <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
@@ -62,14 +62,14 @@ const GameShell: React.FC = () => {
       <Header />
 
       {/* Dynamic Screen Content with Animated View Switcher */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full z-10 px-2 sm:px-4 py-2">
+      <main className="flex-1 flex flex-col items-center justify-center w-full z-10 px-2 sm:px-4 py-1 sm:py-2">
         <AnimatePresence mode="wait">
           <motion.div
             key={phase}
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            initial={{ opacity: 0, y: 8, scale: 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
+            exit={{ opacity: 0, y: -8, scale: 0.99 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="w-full flex-1 flex flex-col items-center justify-center"
           >
             {renderCurrentScreen()}

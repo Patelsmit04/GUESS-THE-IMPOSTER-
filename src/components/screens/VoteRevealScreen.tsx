@@ -5,7 +5,7 @@ import { Avatar } from '../common/Avatar';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { ImposterGuessModal } from './ImposterGuessModal';
-import { ShieldAlert, ShieldCheck, Flame, ArrowRight } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Flame, ArrowRight, FastForward } from 'lucide-react';
 import { sound } from '../../services/sound';
 
 export const VoteRevealScreen: React.FC = () => {
@@ -22,7 +22,7 @@ export const VoteRevealScreen: React.FC = () => {
   useEffect(() => {
     // Stage 1 -> Drumroll sound
     sound.playDrumroll(() => {
-      setRevealStep('ACCUSED');
+      setRevealStep(prev => prev === 'TALLY' ? 'ACCUSED' : prev);
     });
   }, []);
 
@@ -30,6 +30,13 @@ export const VoteRevealScreen: React.FC = () => {
 
   const eliminatedPlayer = players.find(p => p.id === roundResult.eliminatedPlayerId);
   const isImposterEliminated = eliminatedPlayer?.role === 'IMPOSTER';
+
+  const handleSkipDrumroll = () => {
+    if (revealStep === 'TALLY') {
+      sound.playClick();
+      setRevealStep('ACCUSED');
+    }
+  };
 
   const handleFlipCard = () => {
     sound.playCardFlip();
@@ -45,7 +52,6 @@ export const VoteRevealScreen: React.FC = () => {
   };
 
   const handleProceed = () => {
-    // If imposter was eliminated and guess word is allowed
     if (isImposterEliminated && settings.allowImposterGuess && !roundResult.imposterGuessedWord) {
       setShowGuessModal(true);
     } else {
@@ -54,55 +60,65 @@ export const VoteRevealScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-4 select-none">
+    <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 select-none">
       {/* Title */}
-      <div className="text-center mb-4">
-        <Badge variant="danger" size="sm" className="mb-1">
+      <div className="text-center mb-2.5 sm:mb-4">
+        <Badge variant="danger" size="sm" className="mb-0.5">
           Elimination Ceremony
         </Badge>
-        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">
           {revealStep === 'TALLY'
             ? 'Counting The Votes...'
             : revealStep === 'ACCUSED'
             ? 'The Table Has Decided!'
             : 'Truth Revealed!'}
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300">
+        <p className="text-[11px] sm:text-xs md:text-sm text-slate-300">
           {revealStep === 'TALLY'
-            ? 'Listening to the room...'
+            ? 'Tallying accusations from all players...'
             : eliminatedPlayer
-            ? `${eliminatedPlayer.name} received the most accusations.`
+            ? `${eliminatedPlayer.name} received the most votes.`
             : 'A tie! No consensus reached!'}
         </p>
+
+        {revealStep === 'TALLY' && (
+          <button
+            onClick={handleSkipDrumroll}
+            className="mt-1.5 text-[10px] sm:text-xs text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1 cursor-pointer"
+          >
+            <FastForward size={12} />
+            <span>Skip build-up</span>
+          </button>
+        )}
       </div>
 
-      {/* Main Dramatic Presentation */}
-      <div className="my-auto flex flex-col items-center justify-center py-2">
+      {/* Main Dramatic Presentation with responsive sizing */}
+      <div className="my-auto flex flex-col items-center justify-center py-1 sm:py-2">
         <AnimatePresence mode="wait">
           {eliminatedPlayer ? (
             <motion.div
               key={revealStep}
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', damping: 20 }}
-              className="w-full max-w-sm"
+              transition={{ type: 'spring', damping: 22 }}
+              className="w-full max-w-[340px] sm:max-w-sm"
             >
               {revealStep !== 'FLIPPED' ? (
                 /* Card Front - Accused Suspect */
-                <div className="p-6 rounded-3xl bg-slate-900 border-2 border-rose-500/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
-                  <div className="absolute top-3 right-3">
+                <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-rose-500/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
+                  <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3">
                     <Badge variant="danger" size="sm">
                       {eliminatedPlayer.votesReceived} Votes
                     </Badge>
                   </div>
 
-                  <Avatar emoji={eliminatedPlayer.avatar} size="2xl" highlight pulse />
+                  <Avatar emoji={eliminatedPlayer.avatar} size="xl" highlight pulse />
 
-                  <h3 className="text-2xl sm:text-3xl font-black text-white mt-3 mb-1">
+                  <h3 className="text-xl sm:text-3xl font-black text-white mt-2 sm:mt-3 mb-0.5 truncate max-w-[220px]">
                     {eliminatedPlayer.name}
                   </h3>
 
-                  <p className="text-xs text-rose-300 font-semibold mb-4">
+                  <p className="text-[11px] sm:text-xs text-rose-300 font-semibold mb-3 sm:mb-4">
                     Most voted suspect this round
                   </p>
 
@@ -110,9 +126,9 @@ export const VoteRevealScreen: React.FC = () => {
                     fullWidth
                     size="lg"
                     variant="danger"
-                    leftIcon={<ShieldAlert size={18} />}
+                    leftIcon={<ShieldAlert size={16} />}
                     onClick={handleFlipCard}
-                    className="py-3.5 font-black shadow-rose-600/30"
+                    className="py-3 sm:py-3.5 font-black shadow-rose-600/30 text-sm sm:text-base"
                   >
                     Reveal True Identity
                   </Button>
@@ -122,26 +138,26 @@ export const VoteRevealScreen: React.FC = () => {
                 <motion.div
                   initial={{ rotateY: -90, opacity: 0 }}
                   animate={{ rotateY: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className={`p-6 rounded-3xl border-2 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ${
+                  transition={{ duration: 0.45 }}
+                  className={`p-4 sm:p-6 rounded-3xl border-2 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ${
                     isImposterEliminated
                       ? 'bg-gradient-to-b from-rose-950 to-slate-900 border-rose-500 shadow-rose-600/30'
                       : 'bg-gradient-to-b from-slate-900 to-indigo-950/80 border-indigo-500/60 shadow-indigo-600/20'
                   }`}
                 >
-                  <div className="w-18 h-18 rounded-3xl flex items-center justify-center text-4xl mb-3 shadow-lg">
+                  <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl mb-2 sm:mb-3 shadow-lg">
                     {isImposterEliminated ? (
-                      <div className="w-18 h-18 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 flex items-center justify-center text-rose-400">
-                        <Flame size={40} />
+                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 flex items-center justify-center text-rose-400">
+                        <Flame size={32} className="sm:w-10 sm:h-10" />
                       </div>
                     ) : (
-                      <div className="w-18 h-18 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                        <ShieldCheck size={40} />
+                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                        <ShieldCheck size={32} className="sm:w-10 sm:h-10" />
                       </div>
                     )}
                   </div>
 
-                  <span className="text-xs font-black tracking-widest uppercase mb-1">
+                  <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase mb-0.5">
                     {isImposterEliminated ? (
                       <span className="text-rose-400">Guilty as Charged!</span>
                     ) : (
@@ -149,11 +165,11 @@ export const VoteRevealScreen: React.FC = () => {
                     )}
                   </span>
 
-                  <h3 className="text-2xl sm:text-3xl font-black text-white mb-2">
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-white mb-1.5 truncate max-w-[240px]">
                     {eliminatedPlayer.name} was {isImposterEliminated ? 'THE IMPOSTER!' : 'CREW!'}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-300 mb-5 leading-relaxed">
+                  <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 mb-3 sm:mb-4 leading-relaxed line-clamp-3">
                     {isImposterEliminated
                       ? 'The Crew saw through the deception and caught the Imposter red-handed!'
                       : 'Tragedy! An innocent crew member was voted out, allowing the real Imposter to slip away!'}
@@ -163,9 +179,9 @@ export const VoteRevealScreen: React.FC = () => {
                     fullWidth
                     size="lg"
                     variant={isImposterEliminated ? 'primary' : 'secondary'}
-                    rightIcon={<ArrowRight size={20} />}
+                    rightIcon={<ArrowRight size={18} />}
                     onClick={handleProceed}
-                    className="py-3.5 font-black"
+                    className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
                   >
                     {isImposterEliminated && settings.allowImposterGuess
                       ? 'Imposter Last Chance Guess'
@@ -176,22 +192,23 @@ export const VoteRevealScreen: React.FC = () => {
             </motion.div>
           ) : (
             /* Tie situation */
-            <div className="p-6 rounded-3xl bg-slate-900 border-2 border-amber-500/40 text-center max-w-sm">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 flex items-center justify-center text-3xl mb-3 text-amber-400">
+            <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-amber-500/40 text-center max-w-[340px] sm:max-w-sm">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-amber-500/20 flex items-center justify-center text-2xl sm:text-3xl mb-2 sm:mb-3 text-amber-400">
                 ⚖️
               </div>
-              <h3 className="text-2xl font-black text-white mb-2 uppercase">
+              <h3 className="text-lg sm:text-2xl font-black text-white mb-1 uppercase">
                 Tie Vote!
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 mb-5">
+              <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 mb-4 leading-relaxed">
                 The crew could not agree on who to eliminate. In the chaos, the Imposter evades justice!
               </p>
               <Button
                 fullWidth
                 size="lg"
                 variant="primary"
-                rightIcon={<ArrowRight size={20} />}
+                rightIcon={<ArrowRight size={18} />}
                 onClick={() => setPhase('RESULT')}
+                className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
               >
                 View Match Result
               </Button>
@@ -200,26 +217,26 @@ export const VoteRevealScreen: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Vote Breakdown Grid */}
-      <div className="mb-4">
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
-          Complete Vote Breakdown
+      {/* Vote Breakdown Grid with responsive scrolling */}
+      <div className="mb-2 sm:mb-4">
+        <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-1">
+          Vote Breakdown
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 max-h-[16dvh] overflow-y-auto pr-0.5">
           {players.map(p => (
             <div
               key={p.id}
-              className={`p-2.5 rounded-2xl border flex items-center justify-between text-xs ${
+              className={`p-2 rounded-xl border flex items-center justify-between text-[11px] min-w-0 ${
                 p.id === eliminatedPlayer?.id
                   ? 'bg-rose-950/40 border-rose-500/60 text-rose-300 font-bold'
                   : 'bg-slate-900/60 border-slate-800 text-slate-300'
               }`}
             >
               <div className="flex items-center gap-1.5 truncate">
-                <span>{p.avatar}</span>
+                <span className="shrink-0">{p.avatar}</span>
                 <span className="truncate">{p.name}</span>
               </div>
-              <span className="px-1.5 py-0.5 rounded-md bg-slate-800 text-[11px] font-black shrink-0">
+              <span className="px-1.5 py-0.5 rounded-md bg-slate-800 text-[10px] font-black shrink-0">
                 {p.votesReceived} {p.votesReceived === 1 ? 'vote' : 'votes'}
               </span>
             </div>

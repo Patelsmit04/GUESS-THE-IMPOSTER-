@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type {
   GamePhase,
@@ -12,56 +12,35 @@ import type {
 import { CATEGORIES, AVATAR_OPTIONS, DEFAULT_PLAYER_NAMES } from '../data/categories';
 import { storage } from '../services/storage';
 import { sound } from '../services/sound';
+import { GameContext } from './GameContextDef';
 
-export interface GameContextType {
-  phase: GamePhase;
-  players: Player[];
-  currentRound: number;
-  clueRoundCycle: number;
-  category: Category | null;
-  secretWordItem: WordItem | null;
-  currentHandoffIndex: number;
-  currentClueSpeakerIndex: number;
-  currentVoterIndex: number;
-  discussionSecondsRemaining: number;
-  isDiscussionRunning: boolean;
-  settings: GameSettings;
-  roundResult: RoundResult | null;
-  sessionStats: SessionStats;
-  isRestartConfirmOpen: boolean;
-  isHowToPlayOpen: boolean;
-  isImposterGuessOpen: boolean;
+const createPlayerId = () => `p-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
-  // Actions
-  setPhase: (phase: GamePhase) => void;
-  updateSettings: (newSettings: Partial<GameSettings>) => void;
-  addPlayer: (name: string, avatar?: string) => boolean;
-  removePlayer: (id: string) => void;
-  updatePlayer: (id: string, name: string, avatar: string) => void;
-  randomizePlayerNames: () => void;
-  selectCategory: (category: Category | 'random') => void;
-  startNewRound: () => void;
-  nextHandoff: () => void;
-  nextClueSpeaker: () => void;
-  startAnotherClueRound: () => void;
-  startDiscussion: () => void;
-  tickDiscussion: () => void;
-  pauseDiscussion: () => void;
-  resumeDiscussion: () => void;
-  startVoting: () => void;
-  submitVote: (voterId: string, targetId: string) => void;
-  resolveVoteOutcome: () => void;
-  handleImposterGuess: (guessWord: string) => boolean;
-  proceedToScorecard: () => void;
-  proceedToNextRound: () => void;
-  finishGameSummary: () => void;
-  resetEntireGame: () => void;
-  toggleSound: () => void;
-  toggleHaptics: () => void;
-  setIsRestartConfirmOpen: (open: boolean) => void;
-  setIsHowToPlayOpen: (open: boolean) => void;
-  setIsImposterGuessOpen: (open: boolean) => void;
-}
+const pickRandomCategory = (): Category => {
+  return CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+};
+
+const pickRandomWord = (cat: Category): WordItem => {
+  return cat.words[Math.floor(Math.random() * cat.words.length)];
+};
+
+const pickRandomImposterIndices = (totalPlayers: number, numImposters: number): Set<number> => {
+  const indices = Array.from({ length: totalPlayers }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return new Set(indices.slice(0, numImposters));
+};
+
+const getShuffledPlayerNames = (): string[] => {
+  const list = [...DEFAULT_PLAYER_NAMES];
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+};
 
 const DEFAULT_SETTINGS: GameSettings = {
   playerCount: 4,
@@ -133,8 +112,6 @@ const INITIAL_PLAYERS: Player[] = [
   }
 ];
 
-export const GameContext = createContext<GameContextType | undefined>(undefined);
-
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [phase, setPhase] = useState<GamePhase>('HOME');
   const [settings, setSettings] = useState<GameSettings>(() => storage.loadSettings(DEFAULT_SETTINGS));
@@ -193,7 +170,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const availableAvatar = avatar || AVATAR_OPTIONS[players.length % AVATAR_OPTIONS.length].emoji;
     const newPlayer: Player = {
-      id: `p-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: createPlayerId(),
       name: trimmed,
       avatar: availableAvatar,
       color: 'from-indigo-500 to-purple-500',
@@ -225,7 +202,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const randomizePlayerNames = () => {
-    const shuffledNames = [...DEFAULT_PLAYER_NAMES].sort(() => 0.5 - Math.random());
+    const shuffledNames = getShuffledPlayerNames();
     setPlayers(prev =>
       prev.map((p, idx) => ({
         ...p,
@@ -239,7 +216,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const selectCategory = (cat: Category | 'random') => {
     let chosen: Category;
     if (cat === 'random') {
-      chosen = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+      chosen = pickRandomCategory();
     } else {
       chosen = cat;
     }
@@ -249,7 +226,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const startNewRoundWithCategory = (cat: Category) => {
     // Pick random word
-    const randomWord = cat.words[Math.floor(Math.random() * cat.words.length)];
+    const randomWord = pickRandomWord(cat);
     setSecretWordItem(randomWord);
 
     // Assign roles randomly
@@ -257,12 +234,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const numImposters = Math.min(settings.imposterCount, Math.floor((totalPlayers - 1) / 2)) || 1;
 
     // Pick imposter indices randomly
-    const indices = Array.from({ length: totalPlayers }, (_, i) => i);
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    const imposterIndices = new Set(indices.slice(0, numImposters));
+    const imposterIndices = pickRandomImposterIndices(totalPlayers, numImposters);
 
     // Reset player round states
     setPlayers(prev =>
