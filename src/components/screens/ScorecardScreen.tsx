@@ -4,15 +4,15 @@ import { useGame } from '../../context/useGame';
 import { Avatar } from '../common/Avatar';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { ArrowRight, RotateCcw, Flame, ShieldCheck } from 'lucide-react';
+import { Play, Trophy, RotateCcw, Flame, ShieldCheck, Sparkles } from 'lucide-react';
 import { sound } from '../../services/sound';
 
 export const ScorecardScreen: React.FC = () => {
   const {
     players,
     currentRound,
-    settings,
-    proceedToNextRoundOrSummary,
+    proceedToNextRound,
+    finishGameSummary,
     resetEntireGame
   } = useGame();
 
@@ -22,14 +22,13 @@ export const ScorecardScreen: React.FC = () => {
 
   // Sort players by total score descending
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-  const isFinalRound = currentRound >= settings.totalRounds;
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-4 select-none">
       {/* Title */}
       <div className="text-center mb-5">
         <Badge variant="glow" size="sm" className="mb-1">
-          Round {currentRound} of {settings.totalRounds} Complete
+          Round {currentRound} Complete
         </Badge>
         <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
           Scoreboard
@@ -110,27 +109,38 @@ export const ScorecardScreen: React.FC = () => {
         })}
       </div>
 
-      {/* Actions */}
-      <div className="mt-auto space-y-2 pt-2">
+      {/* Actions: Option to play more rounds or conclude and view final standings */}
+      <div className="mt-auto space-y-3 pt-2">
         <Button
           fullWidth
           size="lg"
           variant="primary"
-          rightIcon={<ArrowRight size={20} />}
-          onClick={proceedToNextRoundOrSummary}
+          leftIcon={<Play size={20} fill="currentColor" />}
+          rightIcon={<Sparkles size={18} />}
+          onClick={proceedToNextRound}
           className="shadow-indigo-600/40 text-base font-black py-4"
         >
-          {isFinalRound ? 'View Final Tournament Results 🏆' : `Start Round ${currentRound + 1}`}
+          Continue to Next Round (Round {currentRound + 1})
         </Button>
 
-        <div className="flex items-center justify-center">
-          <button
-            onClick={resetEntireGame}
-            className="text-xs font-semibold text-slate-400 hover:text-white transition-colors py-1 cursor-pointer flex items-center gap-1"
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            size="md"
+            variant="gold"
+            leftIcon={<Trophy size={18} />}
+            onClick={finishGameSummary}
           >
-            <RotateCcw size={12} />
-            <span>Restart Match from Round 1</span>
-          </button>
+            End Game & View Winner
+          </Button>
+
+          <Button
+            size="md"
+            variant="secondary"
+            leftIcon={<RotateCcw size={16} />}
+            onClick={resetEntireGame}
+          >
+            Reset Scores
+          </Button>
         </div>
       </div>
     </div>

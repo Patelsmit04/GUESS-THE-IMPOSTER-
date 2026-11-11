@@ -75,3 +75,4 @@ export const fireConfetti = (type: 'crew' | 'imposter' | 'trophy' = 'crew') => {
     })();
   }
 };
+

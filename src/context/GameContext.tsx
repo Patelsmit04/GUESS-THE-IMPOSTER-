@@ -17,6 +17,7 @@ export interface GameContextType {
   phase: GamePhase;
   players: Player[];
   currentRound: number;
+  clueRoundCycle: number;
   category: Category | null;
   secretWordItem: WordItem | null;
   currentHandoffIndex: number;
@@ -42,6 +43,7 @@ export interface GameContextType {
   startNewRound: () => void;
   nextHandoff: () => void;
   nextClueSpeaker: () => void;
+  startAnotherClueRound: () => void;
   startDiscussion: () => void;
   tickDiscussion: () => void;
   pauseDiscussion: () => void;
@@ -51,7 +53,8 @@ export interface GameContextType {
   resolveVoteOutcome: () => void;
   handleImposterGuess: (guessWord: string) => boolean;
   proceedToScorecard: () => void;
-  proceedToNextRoundOrSummary: () => void;
+  proceedToNextRound: () => void;
+  finishGameSummary: () => void;
   resetEntireGame: () => void;
   toggleSound: () => void;
   toggleHaptics: () => void;
@@ -138,6 +141,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [sessionStats, setSessionStats] = useState<SessionStats>(() => storage.loadStats());
   const [players, setPlayers] = useState<Player[]>(INITIAL_PLAYERS);
   const [currentRound, setCurrentRound] = useState<number>(1);
+  const [clueRoundCycle, setClueRoundCycle] = useState<number>(1);
   const [category, setCategory] = useState<Category | null>(CATEGORIES[0]);
   const [secretWordItem, setSecretWordItem] = useState<WordItem | null>(null);
 
@@ -277,6 +281,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCurrentHandoffIndex(0);
     setCurrentClueSpeakerIndex(0);
     setCurrentVoterIndex(0);
+    setClueRoundCycle(1);
     setRoundResult(null);
     setDiscussionSecondsRemaining(settings.discussionTime || 60);
     setIsDiscussionRunning(false);
@@ -299,6 +304,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } else {
       // All players have reviewed their cards!
       setCurrentClueSpeakerIndex(0);
+      setClueRoundCycle(1);
       setPhase('CLUE_ROUND');
     }
   };
@@ -311,13 +317,24 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (currentClueSpeakerIndex + 1 < players.length) {
       setCurrentClueSpeakerIndex(prev => prev + 1);
       sound.playClick();
-    } else {
-      // Clue phase complete -> start discussion
-      startDiscussion();
     }
   };
 
+  const startAnotherClueRound = () => {
+    sound.playClick();
+    setClueRoundCycle(prev => prev + 1);
+    // Reset all players clueGiven status for new clue cycle
+    setPlayers(prev =>
+      prev.map(p => ({
+        ...p,
+        clueGiven: false
+      }))
+    );
+    setCurrentClueSpeakerIndex(0);
+  };
+
   const startDiscussion = () => {
+    sound.playClick();
     setDiscussionSecondsRemaining(settings.discussionTime || 60);
     setIsDiscussionRunning(settings.discussionTime > 0);
     setPhase('DISCUSSION');
@@ -350,6 +367,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const startVoting = () => {
+    sound.playClick();
     setIsDiscussionRunning(false);
     // Reset vote state
     setPlayers(prev =>
@@ -529,17 +547,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setPhase('SCORECARD');
   };
 
-  const proceedToNextRoundOrSummary = () => {
-    if (currentRound >= settings.totalRounds) {
-      setPhase('FINAL_SUMMARY');
-    } else {
-      setCurrentRound(prev => prev + 1);
-      setPhase('CATEGORY_SELECT');
-    }
+  // User requirement 2: Play next round (accumulating scores, pick category, continue match)
+  const proceedToNextRound = () => {
+    sound.playClick();
+    setCurrentRound(prev => prev + 1);
+    setPhase('CATEGORY_SELECT');
+  };
+
+  // User requirement 2: Finish match and view tournament champion summary
+  const finishGameSummary = () => {
+    sound.playClick();
+    setPhase('FINAL_SUMMARY');
   };
 
   const resetEntireGame = () => {
     setCurrentRound(1);
+    setClueRoundCycle(1);
     setPlayers(prev =>
       prev.map(p => ({
         ...p,
@@ -563,6 +586,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         phase,
         players,
         currentRound,
+        clueRoundCycle,
         category,
         secretWordItem,
         currentHandoffIndex,
@@ -587,6 +611,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         startNewRound,
         nextHandoff,
         nextClueSpeaker,
+        startAnotherClueRound,
         startDiscussion,
         tickDiscussion,
         pauseDiscussion,
@@ -596,7 +621,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         resolveVoteOutcome,
         handleImposterGuess,
         proceedToScorecard,
-        proceedToNextRoundOrSummary,
+        proceedToNextRound,
+        finishGameSummary,
         resetEntireGame,
         toggleSound,
         toggleHaptics,

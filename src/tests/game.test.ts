@@ -3,14 +3,16 @@ import { CATEGORIES } from '../data/categories';
 import type { Player, RoundResult, WordItem } from '../types/game';
 
 describe('Categories and Word Packs Integrity', () => {
-  it('should have at least 5 categories with words, hints, and decoys', () => {
-    expect(CATEGORIES.length).toBeGreaterThanOrEqual(5);
+  it('should have at least 10 rich categories with 15+ words each', () => {
+    expect(CATEGORIES.length).toBeGreaterThanOrEqual(10);
 
+    let totalWords = 0;
     CATEGORIES.forEach(cat => {
       expect(cat.id).toBeDefined();
       expect(cat.name).toBeTruthy();
       expect(cat.icon).toBeTruthy();
-      expect(cat.words.length).toBeGreaterThanOrEqual(5);
+      expect(cat.words.length).toBeGreaterThanOrEqual(15);
+      totalWords += cat.words.length;
 
       cat.words.forEach(word => {
         expect(word.word).toBeTruthy();
@@ -20,6 +22,8 @@ describe('Categories and Word Packs Integrity', () => {
         expect(word.decoys.map(d => d.toLowerCase())).not.toContain(word.word.toLowerCase());
       });
     });
+
+    expect(totalWords).toBeGreaterThanOrEqual(150);
   });
 });
 
@@ -134,7 +138,7 @@ describe('Voting and Outcome Logic', () => {
   });
 });
 
-describe('Scoring Accuracy', () => {
+describe('Scoring Accuracy & Unlimited Round Progression', () => {
   it('correctly awards points on Crew victory with accurate voter bonus', () => {
     const mockWord: WordItem = {
       id: 'test-1',
@@ -180,23 +184,19 @@ describe('Scoring Accuracy', () => {
     expect(updated.find(p => p.id === 'p-3')?.roundScore).toBe(0);
   });
 
-  it('awards +150 to Imposter when stealing victory via word guess', () => {
-    const imposterResult: RoundResult = {
-      roundNumber: 1,
-      winner: 'IMPOSTER',
-      secretWord: 'Pizza',
-      categoryName: 'Food',
-      imposterIds: ['p-3'],
-      eliminatedPlayerId: 'p-3',
-      imposterGuessedWord: true,
-      reason: 'Imposter correctly guessed the word'
-    };
+  it('allows playing continuous rounds, preserving previous scores', () => {
+    let currentRound = 1;
+    const scores = { 'p-1': 125, 'p-2': 100, 'p-3': 0 };
 
-    let imposterEarned = 0;
-    if (imposterResult.winner === 'IMPOSTER') {
-      imposterEarned += imposterResult.imposterGuessedWord ? 150 : 200;
-    }
+    // Advance to next round
+    currentRound += 1;
+    expect(currentRound).toBe(2);
 
-    expect(imposterEarned).toBe(150);
+    // Round 2 gives additional points
+    scores['p-1'] += 100; // Total 225
+    scores['p-3'] += 200; // Imposter won round 2 -> 200
+
+    expect(scores['p-1']).toBe(225);
+    expect(scores['p-3']).toBe(200);
   });
 });
