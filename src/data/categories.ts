@@ -1479,9 +1479,23 @@ export const AVATAR_OPTIONS = [
   { emoji: '🕵️', label: 'Detective', bg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' },
   { emoji: '👾', label: 'Alien', bg: 'bg-lime-500/20 text-lime-400 border-lime-500/40' },
   { emoji: '🦖', label: 'Dino', bg: 'bg-teal-500/20 text-teal-400 border-teal-500/40' },
-  { emoji: '🚀', label: 'Astro', bg: 'bg-sky-500/20 text-sky-400 border-sky-500/40' }
+  { emoji: '🚀', label: 'Astro', bg: 'bg-sky-500/20 text-sky-400 border-sky-500/40' },
+  { emoji: '🐯', label: 'Tiger', bg: 'bg-orange-500/20 text-orange-400 border-orange-500/40' },
+  { emoji: '🐺', label: 'Wolf', bg: 'bg-blue-500/20 text-blue-400 border-blue-500/40' },
+  { emoji: '🦄', label: 'Unicorn', bg: 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/40' },
+  { emoji: '🦉', label: 'Owl', bg: 'bg-amber-500/20 text-amber-400 border-amber-500/40' },
+  { emoji: '🐵', label: 'Monkey', bg: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40' },
+  { emoji: '👻', label: 'Ghost', bg: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40' },
+  { emoji: '🧛', label: 'Vampire', bg: 'bg-red-500/20 text-red-400 border-red-500/40' },
+  { emoji: '🦸', label: 'Hero', bg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' },
+  { emoji: '🦈', label: 'Shark', bg: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' },
+  { emoji: '🐙', label: 'Octopus', bg: 'bg-purple-500/20 text-purple-400 border-purple-500/40' },
+  { emoji: '🐲', label: 'Dragon', bg: 'bg-rose-500/20 text-rose-400 border-rose-500/40' },
+  { emoji: '🐧', label: 'Penguin', bg: 'bg-sky-500/20 text-sky-400 border-sky-500/40' }
 ];
 
 export const DEFAULT_PLAYER_NAMES = [
-  'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Sam', 'Riley', 'Avery'
+  'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Sam', 'Riley', 'Avery',
+  'Jamie', 'Quinn', 'Dakota', 'Skyler', 'Reese', 'Cameron', 'Rowan', 'Kendall',
+  'Peyton', 'Logan', 'Harper', 'Hayden', 'Finley', 'Elliot', 'Emerson', 'Blake', 'Sage'
 ];

@@ -166,13 +166,11 @@ export const VoteRevealScreen: React.FC = () => {
                   </span>
 
                   <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-slate-900 mb-1.5 truncate max-w-[240px]">
-                    {eliminatedPlayer.name} was {isImposterEliminated ? 'THE IMPOSTER!' : 'CREW!'}
+                    {eliminatedPlayer.name} was {isImposterEliminated ? 'AN IMPOSTER!' : 'CREW!'}
                   </h3>
 
                   <p className="text-[11px] sm:text-xs md:text-sm text-slate-600 mb-3 sm:mb-4 leading-relaxed line-clamp-3">
-                    {isImposterEliminated
-                      ? 'The Crew saw through the deception and caught the Imposter red-handed!'
-                      : 'Tragedy! An innocent crew member was voted out, allowing the real Imposter to slip away!'}
+                    {roundResult.reason}
                   </p>
 
                   <Button
@@ -204,7 +202,7 @@ export const VoteRevealScreen: React.FC = () => {
                 Deadlocked Vote!
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mb-4">
-                No single player held a majority. Without a clear consensus, no one is eliminated and the Imposter survives!
+                No single player held a majority. Without a clear consensus, no one is eliminated and the Imposter team survives!
               </p>
               <Button fullWidth variant="primary" size="lg" onClick={() => setPhase('RESULT')}>
                 View Round Outcome
@@ -216,29 +214,32 @@ export const VoteRevealScreen: React.FC = () => {
 
       {/* Vote Breakdown Summary Table */}
       <div className="mt-auto mb-1 bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3 shadow-xs max-h-[22dvh] overflow-y-auto">
-        <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5 px-0.5">
-          Accusations Breakdown
-        </span>
+        <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-0.5">
+          <span>Accusations Breakdown</span>
+          <span>{players.length} Players</span>
+        </div>
 
         <div className="space-y-1">
-          {players.map(p => (
-            <div
-              key={p.id}
-              className={`flex items-center justify-between text-xs px-2.5 py-1.5 rounded-xl ${
-                p.id === eliminatedPlayer?.id
-                  ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200'
-                  : 'bg-slate-50 text-slate-700'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span>{p.avatar}</span>
-                <span className="truncate">{p.name}</span>
+          {[...players]
+            .sort((a, b) => b.votesReceived - a.votesReceived)
+            .map(p => (
+              <div
+                key={p.id}
+                className={`flex items-center justify-between text-xs px-2.5 py-1.5 rounded-xl ${
+                  p.id === eliminatedPlayer?.id
+                    ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200'
+                    : 'bg-slate-50 text-slate-700'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span>{p.avatar}</span>
+                  <span className="truncate">{p.name}</span>
+                </div>
+                <span className="font-black shrink-0">
+                  {p.votesReceived} {p.votesReceived === 1 ? 'vote' : 'votes'}
+                </span>
               </div>
-              <span className="font-black shrink-0">
-                {p.votesReceived} {p.votesReceived === 1 ? 'vote' : 'votes'}
-              </span>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 

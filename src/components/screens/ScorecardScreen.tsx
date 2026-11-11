@@ -11,6 +11,8 @@ export const ScorecardScreen: React.FC = () => {
   const {
     players,
     currentRound,
+    roundResult,
+    settings,
     proceedToNextRound,
     finishGameSummary,
     resetEntireGame
@@ -26,23 +28,26 @@ export const ScorecardScreen: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-3 sm:px-4 py-3 sm:py-4 select-none">
       {/* Title */}
-      <div className="text-center mb-3 sm:mb-5">
+      <div className="text-center mb-3 sm:mb-4">
         <Badge variant="glow" size="sm" className="mb-1">
-          Round {currentRound} Complete
+          Round {currentRound} Complete • {settings.imposterCount} {settings.imposterCount === 1 ? 'Imposter' : 'Imposters'}
         </Badge>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
           Scoreboard
         </h2>
         <p className="text-xs sm:text-sm text-slate-600">
-          Points awarded for catching the imposter, successful bluffs, and accurate votes!
+          Points awarded for catching imposters, bluffing successfully, and accurate deductions!
         </p>
       </div>
 
       {/* Scoreboard Table / Cards */}
-      <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6 overflow-y-auto pr-1 max-h-[48dvh] sm:max-h-[54dvh]">
+      <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6 overflow-y-auto pr-1 max-h-[46dvh] sm:max-h-[52dvh]">
         {sortedPlayers.map((player, rank) => {
           const isLeader = rank === 0 && player.score > 0;
           const isImposter = player.role === 'IMPOSTER';
+          const correctPicks = (!isImposter && roundResult?.imposterIds && player.votedForIds)
+            ? player.votedForIds.filter(id => roundResult.imposterIds.includes(id)).length
+            : 0;
 
           return (
             <motion.div
@@ -90,9 +95,14 @@ export const ScorecardScreen: React.FC = () => {
                       </span>
                     )}
                     <span className="text-slate-400 text-[10px]">•</span>
-                    <span className="text-[10px] sm:text-[11px] text-slate-600 truncate">
+                    <span className="text-[10px] sm:text-[11px] text-slate-600 truncate font-semibold">
                       +{player.roundScore} pts
                     </span>
+                    {correctPicks > 0 && settings.imposterCount > 1 && (
+                      <span className="ml-1 text-[9px] sm:text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                        🎯 {correctPicks}/{settings.imposterCount}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

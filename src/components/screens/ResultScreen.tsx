@@ -70,30 +70,54 @@ export const ResultScreen: React.FC = () => {
           </Badge>
 
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase mb-2">
-            {isCrewWin ? 'Crew Victory!' : 'Imposter Wins!'}
+            {isCrewWin ? 'Crew Victory!' : imposterPlayers.length > 1 ? 'Imposters Win!' : 'Imposter Wins!'}
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mb-4 sm:mb-6 leading-relaxed px-1">
             {roundResult.reason}
           </p>
 
-          {/* Secret Word Reveal Box */}
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center max-w-sm mx-auto shadow-xs">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5">
-              Category: {roundResult.categoryName}
-            </span>
-            <span className="text-xs text-indigo-600 font-semibold block mb-0.5">
-              Secret Word Was
-            </span>
-            <span className="text-xl sm:text-3xl font-black text-slate-900 uppercase tracking-wider">
-              {roundResult.secretWord}
-            </span>
+          {/* Secret Word & Imposters Reveal Box */}
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center max-w-md mx-auto shadow-xs space-y-3">
+            <div>
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5">
+                Category: {roundResult.categoryName}
+              </span>
+              <span className="text-xs text-indigo-600 font-semibold block mb-0.5">
+                Secret Word Was
+              </span>
+              <span className="text-xl sm:text-3xl font-black text-slate-900 uppercase tracking-wider">
+                {roundResult.secretWord}
+              </span>
+            </div>
+
+            {/* Revealed Imposters Section */}
+            <div className="pt-2 border-t border-slate-200/80">
+              <span className="text-[10px] sm:text-[11px] font-bold text-rose-600 uppercase tracking-wider block mb-1.5">
+                {imposterPlayers.length > 1 ? `The Imposters (${imposterPlayers.length})` : 'The Imposter'}
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {imposterPlayers.map(imp => (
+                  <div
+                    key={imp.id}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-xl border border-rose-200 shadow-xs"
+                  >
+                    <Avatar emoji={imp.avatar} size="xs" />
+                    <span className="text-xs font-bold text-slate-900">{imp.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Winning Players Spotlight */}
           <div className="border-t border-slate-100 pt-3 sm:pt-4">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2 sm:mb-3">
-              {isCrewWin ? 'Victorious Crew (+100 Pts)' : 'Victorious Imposter (+200 Pts)'}
+              {isCrewWin
+                ? 'Victorious Crew (+100 Pts)'
+                : imposterPlayers.length > 1
+                ? 'Victorious Imposters (+200 Pts each)'
+                : 'Victorious Imposter (+200 Pts)'}
             </span>
 
             <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 max-h-[22dvh] overflow-y-auto px-1 py-1">

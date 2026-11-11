@@ -213,10 +213,128 @@ describe('Scoring Accuracy & Unlimited Round Progression', () => {
     expect(clueRoundCycle).toBe(1);
   });
 
-  it('enforces player constraints: min 3, max 10', () => {
+  it('enforces player constraints: min 3, max 20, and valid imposter-to-player ratios', () => {
     const minPlayers = 3;
-    const maxPlayers = 10;
+    const maxPlayers = 20;
     expect(minPlayers).toBe(3);
-    expect(maxPlayers).toBe(10);
+    expect(maxPlayers).toBe(20);
+
+    // Validation rule: Math.max(3, imposterCount * 2 + 1)
+    const getMinForImposters = (count: number) => Math.max(3, count * 2 + 1);
+    expect(getMinForImposters(1)).toBe(3);
+    expect(getMinForImposters(2)).toBe(5);
+    expect(getMinForImposters(3)).toBe(7);
+    expect(getMinForImposters(4)).toBe(9);
+  });
+});
+
+describe('V3 Multiple Imposter System (1–4 Imposters) & Dynamic Multi-Target Voting', () => {
+  it('supports 1, 2, 3, and 4 imposter settings', () => {
+    const validImposterCounts = [1, 2, 3, 4];
+    validImposterCounts.forEach(count => {
+      expect(count).toBeGreaterThanOrEqual(1);
+      expect(count).toBeLessThanOrEqual(4);
+    });
+  });
+
+  it('allocates exactly N votes per eligible player when imposter count is N', () => {
+    const imposterCount = 3; // 3 Imposters mode
+    const mockRoster: Player[] = Array.from({ length: 8 }, (_, i) => ({
+      id: `p-${i + 1}`,
+      name: `Player ${i + 1}`,
+      avatar: '🎮',
+      color: '',
+      role: i < 3 ? 'IMPOSTER' : 'CREW',
+      score: 0,
+      roundScore: 0,
+      clueGiven: true,
+      hasVoted: false,
+      votesReceived: 0,
+      isEliminated: false
+    }));
+    expect(mockRoster.length).toBe(8);
+
+    // Each player selects exactly 3 unique targets (cannot vote self)
+    const sampleBallot = ['p-1', 'p-2', 'p-4'];
+    expect(sampleBallot.length).toBe(imposterCount);
+    // Ensure all selections in ballot are unique
+    expect(new Set(sampleBallot).size).toBe(imposterCount);
+    // Ensure self-voting is disallowed
+    const voterId = 'p-5';
+    expect(sampleBallot).not.toContain(voterId);
+  });
+
+  it('tallies multi-vote ballots across all players correctly', () => {
+    const players: Player[] = [
+      { id: 'p-1', name: 'Imp1', avatar: '🦁', color: '', role: 'IMPOSTER', score: 0, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-3', 'p-4'], votesReceived: 0, isEliminated: false },
+      { id: 'p-2', name: 'Imp2', avatar: '🦊', color: '', role: 'IMPOSTER', score: 0, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-3', 'p-5'], votesReceived: 0, isEliminated: false },
+      { id: 'p-3', name: 'Crew1', avatar: '🤖', color: '', role: 'CREW', score: 0, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-1', 'p-2'], votesReceived: 0, isEliminated: false },
+      { id: 'p-4', name: 'Crew2', avatar: '🐱', color: '', role: 'CREW', score: 0, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-1', 'p-2'], votesReceived: 0, isEliminated: false },
+      { id: 'p-5', name: 'Crew3', avatar: '🐶', color: '', role: 'CREW', score: 0, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-1', 'p-3'], votesReceived: 0, isEliminated: false }
+    ];
+
+    // Tally votes
+    const votesSummary: Record<string, number> = {};
+    players.forEach(p => {
+      const targets = p.votedForIds || [];
+      targets.forEach(tId => {
+        votesSummary[tId] = (votesSummary[tId] || 0) + 1;
+      });
+    });
+
+    // p-1 received votes from p-3, p-4, p-5 = 3
+    expect(votesSummary['p-1']).toBe(3);
+    // p-2 received votes from p-3, p-4 = 2
+    expect(votesSummary['p-2']).toBe(2);
+    // p-3 received votes from p-1, p-2, p-5 = 3
+    expect(votesSummary['p-3']).toBe(3);
+    // p-4 received votes from p-1 = 1
+    expect(votesSummary['p-4']).toBe(1);
+    // p-5 received votes from p-2 = 1
+    expect(votesSummary['p-5']).toBe(1);
+
+    // Highest votes are p-1 and p-3 tied at 3 votes
+    let maxVotes = 0;
+    let highest: string[] = [];
+    Object.entries(votesSummary).forEach(([id, count]) => {
+      if (count > maxVotes) {
+        maxVotes = count;
+        highest = [id];
+      } else if (count === maxVotes) {
+        highest.push(id);
+      }
+    });
+
+    expect(maxVotes).toBe(3);
+    expect(highest.sort()).toEqual(['p-1', 'p-3'].sort()); // Tie!
+  });
+
+  it('accurately awards +25 points per correct imposter vote in multi-imposter mode', () => {
+    const imposterIds = ['p-1', 'p-2'];
+    const voter: Player = {
+      id: 'p-3',
+      name: 'Detective',
+      avatar: '🕵️',
+      color: '',
+      role: 'CREW',
+      score: 100,
+      roundScore: 0,
+      clueGiven: true,
+      hasVoted: true,
+      votedForIds: ['p-1', 'p-2'], // Perfectly guessed both imposters
+      votesReceived: 0,
+      isEliminated: false
+    };
+
+    // Calculate accuracy points
+    const correctVotes = voter.votedForIds?.filter(t => imposterIds.includes(t)).length || 0;
+    expect(correctVotes).toBe(2);
+
+    const bonusPoints = correctVotes * 25; // 2 * 25 = 50 pts
+    expect(bonusPoints).toBe(50);
+
+    // Total round score with crew win (+100) = 150
+    const totalEarned = 100 + bonusPoints;
+    expect(totalEarned).toBe(150);
   });
 });

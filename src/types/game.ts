@@ -24,7 +24,8 @@ export interface Player {
   roundScore: number;
   clueGiven: boolean;
   hasVoted: boolean;
-  votedForId: string | null;
+  votedForId?: string | null;
+  votedForIds?: string[];
   votesReceived: number;
   isEliminated: boolean;
 }
@@ -65,6 +66,11 @@ export interface RoundResult {
   categoryName: string;
   imposterIds: string[];
   eliminatedPlayerId: string | null;
+  eliminatedPlayerIds?: string[];
+  totalImposters?: number;
+  caughtImposters?: string[];
+  remainingImposters?: string[];
+  votesSummary?: Record<string, number>;
   imposterGuessedWord: boolean;
   imposterGuessAttempt?: string;
   reason: string;

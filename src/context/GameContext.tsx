@@ -65,6 +65,7 @@ const INITIAL_PLAYERS: Player[] = [
     clueGiven: false,
     hasVoted: false,
     votedForId: null,
+    votedForIds: [],
     votesReceived: 0,
     isEliminated: false
   },
@@ -79,6 +80,7 @@ const INITIAL_PLAYERS: Player[] = [
     clueGiven: false,
     hasVoted: false,
     votedForId: null,
+    votedForIds: [],
     votesReceived: 0,
     isEliminated: false
   },
@@ -93,6 +95,7 @@ const INITIAL_PLAYERS: Player[] = [
     clueGiven: false,
     hasVoted: false,
     votedForId: null,
+    votedForIds: [],
     votesReceived: 0,
     isEliminated: false
   },
@@ -107,6 +110,7 @@ const INITIAL_PLAYERS: Player[] = [
     clueGiven: false,
     hasVoted: false,
     votedForId: null,
+    votedForIds: [],
     votesReceived: 0,
     isEliminated: false
   }
@@ -160,7 +164,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addPlayer = (name: string, avatar?: string): boolean => {
     const trimmed = name.trim();
-    if (!trimmed || players.length >= 10) return false;
+    if (!trimmed || players.length >= 20) return false;
 
     // Check duplicate
     if (players.some(p => p.name.toLowerCase() === trimmed.toLowerCase())) {
@@ -180,6 +184,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       clueGiven: false,
       hasVoted: false,
       votedForId: null,
+      votedForIds: [],
       votesReceived: 0,
       isEliminated: false
     };
@@ -231,7 +236,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Assign roles randomly
     const totalPlayers = players.length;
-    const numImposters = Math.min(settings.imposterCount, Math.floor((totalPlayers - 1) / 2)) || 1;
+    const numImposters = Math.max(1, Math.min(settings.imposterCount, totalPlayers - 1));
 
     // Pick imposter indices randomly
     const imposterIndices = pickRandomImposterIndices(totalPlayers, numImposters);
@@ -245,6 +250,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clueGiven: false,
         hasVoted: false,
         votedForId: null,
+        votedForIds: [],
         votesReceived: 0,
         isEliminated: false
       }))
@@ -347,6 +353,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...p,
         hasVoted: false,
         votedForId: null,
+        votedForIds: [],
         votesReceived: 0
       }))
     );
@@ -354,39 +361,54 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setPhase('VOTING');
   };
 
-  const submitVote = (voterId: string, targetId: string) => {
+  const submitVote = (voterId: string, targetIds: string | string[]) => {
     sound.playVoteSubmit();
 
-    setPlayers(prev =>
-      prev.map(p => {
+    const targets = Array.isArray(targetIds) ? targetIds : [targetIds];
+
+    setPlayers(prev => {
+      const nextPlayers = prev.map(p => {
         if (p.id === voterId) {
-          return { ...p, hasVoted: true, votedForId: targetId };
+          return {
+            ...p,
+            hasVoted: true,
+            votedForId: targets[0] || null,
+            votedForIds: targets
+          };
         }
         return p;
-      })
-    );
+      });
 
-    if (settings.privateVoting) {
-      if (currentVoterIndex + 1 < players.length) {
-        setCurrentVoterIndex(prev => prev + 1);
-      } else {
-        // All have voted privately
-        resolveVoteOutcome();
+      if (settings.privateVoting) {
+        if (currentVoterIndex + 1 < nextPlayers.length) {
+          setCurrentVoterIndex(idx => idx + 1);
+        } else {
+          // All have voted privately
+          resolveVoteOutcomeWithPlayers(nextPlayers);
+        }
       }
-    }
+
+      return nextPlayers;
+    });
   };
 
-  const resolveVoteOutcome = () => {
-    // Tally votes
+  const resolveVoteOutcomeWithPlayers = (currentPlayersList: Player[]) => {
+    // Tally votes from all ballots
     const voteCounts: Record<string, number> = {};
-    players.forEach(p => {
-      if (p.votedForId && p.votedForId !== 'SKIP') {
-        voteCounts[p.votedForId] = (voteCounts[p.votedForId] || 0) + 1;
-      }
+    currentPlayersList.forEach(p => {
+      const targets = p.votedForIds && p.votedForIds.length > 0
+        ? p.votedForIds
+        : p.votedForId ? [p.votedForId] : [];
+
+      targets.forEach(targetId => {
+        if (targetId && targetId !== 'SKIP') {
+          voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
+        }
+      });
     });
 
     // Update votes received
-    const updatedPlayers = players.map(p => ({
+    const updatedPlayers = currentPlayersList.map(p => ({
       ...p,
       votesReceived: voteCounts[p.id] || 0
     }));
@@ -407,33 +429,63 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const isTie = highestVotedPlayers.length !== 1 || maxVotes === 0;
     const eliminated = isTie ? null : highestVotedPlayers[0];
 
-    const imposterIds = updatedPlayers.filter(p => p.role === 'IMPOSTER').map(p => p.id);
+    const allImposters = updatedPlayers.filter(p => p.role === 'IMPOSTER');
+    const imposterIds = allImposters.map(p => p.id);
     const imposterCaught = eliminated !== null && eliminated.role === 'IMPOSTER';
 
-    setPlayers(
-      updatedPlayers.map(p => ({
-        ...p,
-        isEliminated: eliminated ? p.id === eliminated.id : false
-      }))
-    );
+    const caughtImposters = imposterCaught && eliminated ? [eliminated.id] : [];
+    const remainingImposters = imposterIds.filter(id => id !== eliminated?.id);
+
+    const isCrewWin = imposterCaught;
+
+    const updatedPlayersWithElimination = updatedPlayers.map(p => ({
+      ...p,
+      isEliminated: eliminated ? p.id === eliminated.id : false
+    }));
+
+    let reason = '';
+    if (isTie) {
+      reason = imposterIds.length > 1
+        ? `A tie vote! The ${imposterIds.length} Imposters slipped away in the confusion!`
+        : 'A tie vote! The Imposter escaped in the confusion!';
+    } else if (imposterCaught && eliminated) {
+      if (remainingImposters.length === 0) {
+        reason = imposterIds.length > 1
+          ? `The table caught ${eliminated.name}, eliminating the final Imposter! Full Crew victory!`
+          : `The crew correctly identified ${eliminated.name} as the Imposter!`;
+      } else {
+        reason = `The table exposed ${eliminated.name} as an Imposter! However, ${remainingImposters.length} Imposter(s) remain at large!`;
+      }
+    } else {
+      reason = `${eliminated?.name || 'An innocent'} was wrongfully accused! The Imposter team survives!`;
+    }
 
     const initialResult: RoundResult = {
       roundNumber: currentRound,
-      winner: imposterCaught ? 'CREW' : 'IMPOSTER',
+      winner: isCrewWin ? 'CREW' : 'IMPOSTER',
       secretWord: secretWordItem?.word || '',
       categoryName: category?.name || '',
       imposterIds,
       eliminatedPlayerId: eliminated?.id || null,
+      eliminatedPlayerIds: eliminated ? [eliminated.id] : [],
+      totalImposters: imposterIds.length,
+      caughtImposters,
+      remainingImposters,
+      votesSummary: voteCounts,
       imposterGuessedWord: false,
-      reason: isTie
-        ? 'A tie occurred! The Imposter escaped in the confusion!'
-        : imposterCaught
-        ? `The crew correctly identified ${eliminated.name} as the Imposter!`
-        : `${eliminated?.name || 'An innocent'} was wrongfully accused! The Imposter succeeded!`
+      reason
     };
 
     setRoundResult(initialResult);
+
+    // Calculate score points immediately so the scorecard updates right after voting!
+    awardPoints(initialResult, updatedPlayersWithElimination);
+
     setPhase('VOTE_REVEAL');
+  };
+
+  const resolveVoteOutcome = () => {
+    resolveVoteOutcomeWithPlayers(players);
   };
 
   const handleImposterGuess = (guessWord: string): boolean => {
@@ -471,22 +523,28 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const awardPoints = (finalResult: RoundResult) => {
+  const awardPoints = (finalResult: RoundResult, currentPlayersList?: Player[]) => {
     const isCrewWin = finalResult.winner === 'CREW';
     const imposterIdSet = new Set(finalResult.imposterIds);
+    const targetPlayers = currentPlayersList || players;
 
-    const updated = players.map(player => {
+    const updated = targetPlayers.map(player => {
       let earned = 0;
+      const targets = player.votedForIds && player.votedForIds.length > 0
+        ? player.votedForIds
+        : player.votedForId ? [player.votedForId] : [];
+
       if (player.role === 'CREW') {
         if (isCrewWin) earned += 100;
-        // Correct vote bonus
-        if (player.votedForId && imposterIdSet.has(player.votedForId)) {
-          earned += 25;
-        }
+        // Reward +25 pts for each correct imposter identified in ballot
+        const correctVotes = targets.filter(t => imposterIdSet.has(t)).length;
+        earned += correctVotes * 25;
       } else {
         // Imposter
         if (!isCrewWin) {
           earned += finalResult.imposterGuessedWord ? 150 : 200;
+        } else if (finalResult.imposterGuessedWord && finalResult.eliminatedPlayerId === player.id) {
+          earned += 150;
         }
       }
 
@@ -512,10 +570,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const proceedToScorecard = () => {
-    if (roundResult && !roundResult.imposterGuessedWord && players[0].roundScore === 0) {
-      // Award points if not already awarded
-      awardPoints(roundResult);
-    }
     setPhase('SCORECARD');
   };
 
@@ -544,6 +598,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clueGiven: false,
         hasVoted: false,
         votedForId: null,
+        votedForIds: [],
         votesReceived: 0,
         isEliminated: false
       }))

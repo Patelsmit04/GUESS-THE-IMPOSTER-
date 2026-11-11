@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 interface AvatarProps {
   emoji: string;
   name?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   highlight?: boolean;
   pulse?: boolean;
   isEliminated?: boolean;
@@ -25,6 +25,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   onClick
 }) => {
   const sizeMap = {
+    xs: 'w-7 h-7 sm:w-8 sm:h-8 text-sm sm:text-base',
     sm: 'w-9 h-9 sm:w-10 sm:h-10 text-lg sm:text-xl',
     md: 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl',
     lg: 'w-16 h-16 sm:w-20 sm:h-20 text-3xl sm:text-4xl',

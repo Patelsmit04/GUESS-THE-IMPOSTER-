@@ -45,7 +45,7 @@ export interface GameContextType {
   pauseDiscussion: () => void;
   resumeDiscussion: () => void;
   startVoting: () => void;
-  submitVote: (voterId: string, targetId: string) => void;
+  submitVote: (voterId: string, targetIds: string | string[]) => void;
   resolveVoteOutcome: () => void;
   handleImposterGuess: (guessWord: string) => boolean;
   proceedToScorecard: () => void;

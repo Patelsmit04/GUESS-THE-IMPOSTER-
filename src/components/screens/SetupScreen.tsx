@@ -4,8 +4,39 @@ import { useGame } from '../../context/useGame';
 import { Button } from '../common/Button';
 import { Avatar } from '../common/Avatar';
 import { AVATAR_OPTIONS } from '../../data/categories';
-import { UserPlus, Trash2, Shuffle, ArrowRight, Settings, Clock, ShieldAlert, Sparkles, Check } from 'lucide-react';
+import { UserPlus, Trash2, Shuffle, ArrowRight, Settings, Clock, ShieldAlert, Sparkles, Check, Flame, Users } from 'lucide-react';
 import { sound } from '../../services/sound';
+
+const IMPOSTER_OPTIONS = [
+  {
+    count: 1,
+    title: '1 Imposter',
+    subtitle: 'Classic mode',
+    minPlayers: 3,
+    badge: 'Classic'
+  },
+  {
+    count: 2,
+    title: '2 Imposters',
+    subtitle: 'Double trouble',
+    minPlayers: 5,
+    badge: 'Co-op Bluff'
+  },
+  {
+    count: 3,
+    title: '3 Imposters',
+    subtitle: 'Triple threat',
+    minPlayers: 7,
+    badge: 'High Suspicion'
+  },
+  {
+    count: 4,
+    title: '4 Imposters',
+    subtitle: 'Maximum chaos',
+    minPlayers: 9,
+    badge: 'Total Mayhem'
+  }
+];
 
 export const SetupScreen: React.FC = () => {
   const {
@@ -25,6 +56,10 @@ export const SetupScreen: React.FC = () => {
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const currentImposterOption = IMPOSTER_OPTIONS.find(opt => opt.count === settings.imposterCount) || IMPOSTER_OPTIONS[0];
+  const minRequiredPlayers = currentImposterOption.minPlayers;
+  const isPlayerCountValid = players.length >= minRequiredPlayers;
+
   const handleAddPlayer = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newName.trim()) return;
@@ -36,14 +71,19 @@ export const SetupScreen: React.FC = () => {
       const nextIdx = (AVATAR_OPTIONS.findIndex(a => a.emoji === selectedAvatar) + 1) % AVATAR_OPTIONS.length;
       setSelectedAvatar(AVATAR_OPTIONS[nextIdx].emoji);
     } else {
-      setErrorMsg('Name taken or invalid (3–10 players max)');
+      setErrorMsg('Name taken or invalid (3–20 players max)');
     }
   };
 
+  const handleSelectImposters = (count: number) => {
+    sound.playClick();
+    updateSettings({ imposterCount: count });
+  };
+
   const handleStartGame = () => {
-    if (players.length < 3) {
+    if (players.length < minRequiredPlayers) {
       sound.playWrong();
-      setErrorMsg('Add at least 3 players to start!');
+      setErrorMsg(`Need at least ${minRequiredPlayers} players for ${settings.imposterCount} Imposter(s)! Currently have ${players.length}.`);
       return;
     }
     sound.playClick();
@@ -58,7 +98,7 @@ export const SetupScreen: React.FC = () => {
           Player Setup
         </h2>
         <p className="text-[11px] sm:text-xs md:text-sm text-slate-600">
-          Gather your crew around one phone. 3 to 10 players!
+          Gather your crew around one phone. 3 to 20 players!
         </p>
       </div>
 
@@ -95,7 +135,7 @@ export const SetupScreen: React.FC = () => {
               type="submit"
               size="md"
               variant="primary"
-              disabled={!newName.trim() || players.length >= 10}
+              disabled={!newName.trim() || players.length >= 20}
               leftIcon={<UserPlus size={16} />}
               className="shrink-0"
             >
@@ -116,7 +156,7 @@ export const SetupScreen: React.FC = () => {
           {/* Quick random fill action */}
           <div className="flex items-center justify-between pt-0.5 text-[11px] sm:text-xs">
             <span className="text-slate-500 font-medium">
-              Players: <strong className="text-slate-900">{players.length}</strong> / 10
+              Players: <strong className="text-slate-900">{players.length}</strong> / 20
             </span>
             <button
               type="button"
@@ -129,7 +169,7 @@ export const SetupScreen: React.FC = () => {
           </div>
         </form>
 
-        {/* Avatar Drawer for new player or editing player */}
+        {/* Avatar Drawer */}
         <AnimatePresence>
           {editingPlayerId && (
             <motion.div
@@ -151,7 +191,7 @@ export const SetupScreen: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-36 overflow-y-auto p-0.5">
                 {AVATAR_OPTIONS.map(opt => (
                   <button
                     key={opt.label}
@@ -181,13 +221,85 @@ export const SetupScreen: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Players List with max-height */}
-      <div className="flex-1 max-h-[38dvh] sm:max-h-[44dvh] overflow-y-auto mb-3 sm:mb-4 pr-1">
+      {/* Number of Imposters Selector */}
+      <div className="mb-3 sm:mb-4 bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-1.5">
+            <Flame size={16} className="text-rose-600" />
+            <span className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wide">
+              Number of Imposters
+            </span>
+          </div>
+          <span className="text-[10px] sm:text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+            {settings.imposterCount} {settings.imposterCount === 1 ? 'Vote / Player' : 'Votes / Player'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {IMPOSTER_OPTIONS.map(opt => {
+            const isSelected = settings.imposterCount === opt.count;
+            const meetsMin = players.length >= opt.minPlayers;
+
+            return (
+              <motion.button
+                key={opt.count}
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleSelectImposters(opt.count)}
+                className={`p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative ${
+                  isSelected
+                    ? 'bg-rose-50/70 border-rose-500 shadow-sm'
+                    : 'bg-slate-50/60 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-1">
+                  <span className={`text-xs sm:text-sm font-black ${
+                    isSelected ? 'text-rose-700' : 'text-slate-800'
+                  }`}>
+                    {opt.title}
+                  </span>
+                  {isSelected && (
+                    <div className="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px]">
+                      ✓
+                    </div>
+                  )}
+                </div>
+
+                <span className="text-[10px] text-slate-500 font-medium block mb-1.5 leading-tight">
+                  {opt.subtitle}
+                </span>
+
+                <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[9px] font-bold">
+                  <span className={meetsMin ? 'text-slate-500' : 'text-amber-600 font-semibold'}>
+                    Min {opt.minPlayers}p
+                  </span>
+                  <span className={isSelected ? 'text-rose-600' : 'text-slate-400'}>
+                    {opt.count} {opt.count === 1 ? 'Vote' : 'Votes'}
+                  </span>
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {!isPlayerCountValid && (
+          <div className="mt-2.5 p-2 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-semibold flex items-center gap-1.5">
+            <Users size={14} className="shrink-0 text-amber-600" />
+            <span>
+              {settings.imposterCount} Imposters mode requires at least <strong>{minRequiredPlayers} players</strong> (currently {players.length}). Add more players or pick fewer imposters!
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Players Roster List */}
+      <div className="flex-1 max-h-[32dvh] sm:max-h-[38dvh] overflow-y-auto mb-3 sm:mb-4 pr-1">
         <h3 className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">
           Roster ({players.length} Players)
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
           <AnimatePresence initial={false}>
             {players.map((player, index) => (
               <motion.div
@@ -197,16 +309,16 @@ export const SetupScreen: React.FC = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.85 }}
                 transition={{ duration: 0.18 }}
-                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-white border border-slate-200 shadow-xs group hover:border-slate-300 transition-colors"
+                className="flex items-center justify-between p-2.5 rounded-2xl bg-white border border-slate-200 shadow-xs group hover:border-slate-300 transition-colors"
               >
                 <div
-                  className="flex items-center gap-2.5 min-w-0 cursor-pointer"
+                  className="flex items-center gap-2 min-w-0 cursor-pointer"
                   onClick={() => setEditingPlayerId(player.id)}
                   title="Click to change avatar"
                 >
                   <Avatar emoji={player.avatar} size="sm" />
                   <div className="text-left min-w-0">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 block truncate max-w-[130px] sm:max-w-[160px]">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 block truncate max-w-[110px] sm:max-w-[140px]">
                       {player.name}
                     </span>
                     <span className="text-[10px] text-slate-500">
@@ -219,7 +331,7 @@ export const SetupScreen: React.FC = () => {
                   {players.length > 3 && (
                     <button
                       onClick={() => removePlayer(player.id)}
-                      className="p-1.5 sm:p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-colors cursor-pointer"
                       title="Remove player"
                       aria-label={`Remove ${player.name}`}
                     >
@@ -234,7 +346,7 @@ export const SetupScreen: React.FC = () => {
       </div>
 
       {/* Advanced Match Options Toggle */}
-      <div className="mb-3 sm:mb-4 bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3.5 shadow-xs">
+      <div className="mb-3 sm:mb-4 bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3 shadow-xs">
         <button
           type="button"
           onClick={() => setShowAdvancedSettings(prev => !prev)}
@@ -344,12 +456,15 @@ export const SetupScreen: React.FC = () => {
           fullWidth
           size="lg"
           variant="primary"
-          disabled={players.length < 3}
+          disabled={!isPlayerCountValid}
           rightIcon={<ArrowRight size={18} />}
           onClick={handleStartGame}
           className="py-3.5 text-base font-black"
         >
-          Select Category ({players.length} Ready)
+          {isPlayerCountValid
+            ? `Select Category (${players.length} Ready • ${settings.imposterCount} ${settings.imposterCount === 1 ? 'Imposter' : 'Imposters'})`
+            : `Need ${minRequiredPlayers} Players for ${settings.imposterCount} Imposters (${players.length}/${minRequiredPlayers})`
+          }
         </Button>
       </div>
     </div>

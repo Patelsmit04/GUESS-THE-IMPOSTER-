@@ -153,6 +153,37 @@ export const FinalSummaryScreen: React.FC = () => {
             </span>
           </div>
         </div>
+
+        {/* Full Standings for Remaining Players (Ranks 4-20) */}
+        {sorted.length > 3 && (
+          <div className="mb-3 text-left">
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-1 flex items-center justify-between">
+              <span>Remaining Standings</span>
+              <span className="text-[10px] font-semibold text-slate-400">Ranks 4 – {sorted.length}</span>
+            </div>
+            <div className="space-y-1.5 max-h-[20dvh] overflow-y-auto pr-1">
+              {sorted.slice(3).map((p, idx) => (
+                <div
+                  key={p.id}
+                  className="p-2 rounded-xl bg-white border border-slate-200 flex items-center justify-between shadow-xs"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs font-black text-slate-400 w-5 text-center flex-shrink-0">
+                      #{idx + 4}
+                    </span>
+                    <Avatar emoji={p.avatar} size="xs" />
+                    <span className="text-xs font-bold text-slate-800 truncate max-w-[140px] sm:max-w-[220px]">
+                      {p.name}
+                    </span>
+                  </div>
+                  <span className="text-xs font-black text-slate-700 flex-shrink-0">
+                    {p.score} pts
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons */}
