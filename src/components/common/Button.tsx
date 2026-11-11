@@ -56,12 +56,12 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-gradient-to-b from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-600/30 border-t border-indigo-400 hover:from-indigo-400 hover:to-indigo-500 active:translate-y-0.5 active:shadow-indigo-600/10',
-    secondary: 'bg-slate-800 text-slate-100 border border-slate-700/80 hover:bg-slate-700/80 active:bg-slate-900 active:translate-y-0.5 shadow-md shadow-black/20',
-    danger: 'bg-gradient-to-b from-rose-500 to-rose-600 text-white shadow-lg shadow-rose-600/30 border-t border-rose-400 hover:from-rose-400 hover:to-rose-500 active:translate-y-0.5 active:shadow-rose-600/10',
-    gold: 'bg-gradient-to-b from-amber-400 to-yellow-500 text-slate-950 font-black shadow-lg shadow-amber-500/30 border-t border-yellow-200 hover:from-amber-300 hover:to-yellow-400 active:translate-y-0.5',
-    ghost: 'bg-transparent text-slate-300 hover:text-white hover:bg-slate-800/60 active:bg-slate-800',
-    glass: 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/15 active:bg-white/5 shadow-lg'
+    primary: 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-sm border border-indigo-700/20 active:translate-y-0.5',
+    secondary: 'bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-800 border border-slate-300 shadow-sm active:translate-y-0.5',
+    danger: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-sm border border-rose-700/20 active:translate-y-0.5',
+    gold: 'bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white shadow-sm border border-amber-600/20 active:translate-y-0.5',
+    ghost: 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200',
+    glass: 'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 border border-slate-200 shadow-sm'
   };
 
   return (

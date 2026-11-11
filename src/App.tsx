@@ -53,11 +53,7 @@ const GameShell: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0B0E1B] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/30 via-[#0B0E1B] to-[#070913] text-slate-100 flex flex-col justify-between relative overflow-x-hidden pt-safe pb-safe px-safe">
-      {/* Background ambient decorative shapes */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-
+    <div className="min-h-[100dvh] bg-[#F8FAFC] text-slate-900 flex flex-col justify-between relative overflow-x-hidden pt-safe pb-safe px-safe">
       {/* Main Top Header */}
       <Header />
 

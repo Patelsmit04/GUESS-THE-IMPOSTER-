@@ -72,16 +72,16 @@ export const ImposterGuessModal: React.FC<ImposterGuessModalProps> = ({
       title="Last Chance Redemption!"
     >
       <div className="space-y-3 sm:space-y-4 text-center select-none">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-3xl bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-amber-500/20 animate-bounce">
-          <Flame className="text-amber-400" size={28} />
+        <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-3xl bg-amber-50 border-2 border-amber-300 flex items-center justify-center text-3xl sm:text-4xl shadow-xs">
+          <Flame className="text-amber-500" size={28} />
         </div>
 
         <div>
-          <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
             Can The Imposter Guess The Word?
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
-            <strong className="text-white">{imposterPlayer?.name || 'The Imposter'}</strong> was caught! If they can guess the secret word from the <span className="text-indigo-400 font-bold">{category.name}</span> category, they steal the victory!
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+            <strong className="text-slate-900">{imposterPlayer?.name || 'The Imposter'}</strong> was caught! If they can guess the secret word from the <span className="text-indigo-600 font-bold">{category.name}</span> category, they steal the victory!
           </p>
         </div>
 
@@ -101,8 +101,8 @@ export const ImposterGuessModal: React.FC<ImposterGuessModalProps> = ({
                 }}
                 className={`p-2.5 sm:p-3 rounded-2xl border-2 text-xs sm:text-sm font-black transition-all cursor-pointer min-h-[46px] flex items-center justify-center text-center truncate ${
                   isSelected
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 ring-2 ring-amber-400/40 scale-102'
-                    : 'bg-slate-800/80 border-slate-700 text-slate-200 hover:border-slate-500 active:scale-95'
+                    ? 'bg-amber-100 border-amber-500 text-amber-950 scale-102 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300'
                 }`}
               >
                 <span className="truncate">{word}</span>
@@ -125,12 +125,12 @@ export const ImposterGuessModal: React.FC<ImposterGuessModalProps> = ({
               setSelectedWord('');
             }}
             placeholder="Or type custom word guess..."
-            className="flex-1 min-h-[44px] bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+            className="flex-1 min-h-[44px] bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-amber-500"
           />
         </div>
 
         {feedback && (
-          <div className="p-3 rounded-xl bg-slate-950 border border-amber-500/40 text-amber-300 font-bold text-xs sm:text-sm animate-pulse leading-snug">
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 font-bold text-xs sm:text-sm leading-snug">
             {feedback}
           </div>
         )}
@@ -153,7 +153,7 @@ export const ImposterGuessModal: React.FC<ImposterGuessModalProps> = ({
             onClick={() => {
               handleSubmit('SKIP_GUESS');
             }}
-            className="min-h-[40px] text-xs text-slate-400 hover:text-white mt-1.5 cursor-pointer flex items-center justify-center gap-1 mx-auto"
+            className="min-h-[40px] text-xs text-slate-500 hover:text-slate-800 mt-1.5 cursor-pointer flex items-center justify-center gap-1 mx-auto font-medium"
           >
             <HelpCircle size={13} />
             <span>I give up, forfeit the guess</span>

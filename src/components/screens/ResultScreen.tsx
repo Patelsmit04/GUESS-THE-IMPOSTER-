@@ -42,20 +42,20 @@ export const ResultScreen: React.FC = () => {
           initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', damping: 18 }}
-          className={`p-4 sm:p-6 md:p-8 rounded-3xl border-2 shadow-2xl relative overflow-hidden ${
+          className={`p-4 sm:p-6 md:p-8 rounded-3xl border-2 shadow-md relative overflow-hidden bg-white ${
             isCrewWin
-              ? 'bg-gradient-to-b from-indigo-950/80 via-slate-900 to-emerald-950/30 border-emerald-500/50 shadow-emerald-600/20'
-              : 'bg-gradient-to-b from-slate-900 via-rose-950/50 to-slate-900 border-rose-500/50 shadow-rose-600/20'
+              ? 'border-emerald-300'
+              : 'border-rose-300'
           }`}
         >
           {/* Top Emblem */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-3 sm:mb-4 shadow-xl">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-3 sm:mb-4 shadow-xs">
             {isCrewWin ? (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center text-emerald-400">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center text-emerald-600">
                 <Trophy size={36} className="sm:w-10 sm:h-10" />
               </div>
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 flex items-center justify-center text-rose-400">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-rose-50 border-2 border-rose-200 flex items-center justify-center text-rose-600">
                 <Flame size={36} className="sm:w-10 sm:h-10" />
               </div>
             )}
@@ -69,30 +69,30 @@ export const ResultScreen: React.FC = () => {
             Round {roundResult.roundNumber} Outcome
           </Badge>
 
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight uppercase mb-2">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase mb-2">
             {isCrewWin ? 'Crew Victory!' : 'Imposter Wins!'}
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-4 sm:mb-6 leading-relaxed px-1">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mb-4 sm:mb-6 leading-relaxed px-1">
             {roundResult.reason}
           </p>
 
           {/* Secret Word Reveal Box */}
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center max-w-sm mx-auto shadow-inner">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center max-w-sm mx-auto shadow-xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5">
               Category: {roundResult.categoryName}
             </span>
-            <span className="text-xs text-indigo-400 font-semibold block mb-0.5">
+            <span className="text-xs text-indigo-600 font-semibold block mb-0.5">
               Secret Word Was
             </span>
-            <span className="text-xl sm:text-3xl font-black text-white uppercase tracking-wider">
+            <span className="text-xl sm:text-3xl font-black text-slate-900 uppercase tracking-wider">
               {roundResult.secretWord}
             </span>
           </div>
 
           {/* Winning Players Spotlight */}
-          <div className="border-t border-slate-800/80 pt-3 sm:pt-4">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2 sm:mb-3">
+          <div className="border-t border-slate-100 pt-3 sm:pt-4">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2 sm:mb-3">
               {isCrewWin ? 'Victorious Crew (+100 Pts)' : 'Victorious Imposter (+200 Pts)'}
             </span>
 
@@ -100,7 +100,7 @@ export const ResultScreen: React.FC = () => {
               {(isCrewWin ? crewPlayers : imposterPlayers).map(winner => (
                 <div key={winner.id} className="flex flex-col items-center min-w-[55px] max-w-[80px]">
                   <Avatar emoji={winner.avatar} size="md" highlight pulse />
-                  <span className="text-[11px] sm:text-xs font-bold text-white mt-1 truncate max-w-full">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1 truncate max-w-full">
                     {winner.name}
                   </span>
                 </div>
@@ -118,7 +118,7 @@ export const ResultScreen: React.FC = () => {
           variant="primary"
           rightIcon={<ArrowRight size={22} />}
           onClick={proceedToScorecard}
-          className="shadow-indigo-600/40 text-base sm:text-lg font-black py-3.5 sm:py-4"
+          className="text-base sm:text-lg font-black py-3.5 sm:py-4"
         >
           View Round Scorecard
         </Button>

@@ -38,11 +38,12 @@ export const Header: React.FC = () => {
           🎭
         </span>
         <div className="flex flex-col text-left min-w-0">
-          <span className="text-sm sm:text-base md:text-lg font-black tracking-wider uppercase bg-gradient-to-r from-indigo-400 via-purple-300 to-rose-400 bg-clip-text text-transparent truncate">
-            <span className="hidden xs:inline">Guess The </span>Imposter
+          <span className="text-sm sm:text-base md:text-lg font-black tracking-wider uppercase text-slate-900 truncate">
+            <span className="hidden xs:inline">Guess The </span>
+            <span className="text-rose-600">Imposter</span>
           </span>
           {isPlaying && (
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 tracking-wide uppercase truncate">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 tracking-wide uppercase truncate">
               Round {currentRound}
             </span>
           )}
@@ -56,10 +57,10 @@ export const Header: React.FC = () => {
           onClick={toggleHaptics}
           title={settings.hapticsEnabled ? 'Haptics enabled' : 'Haptics muted'}
           aria-label="Toggle haptic vibration"
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
             settings.hapticsEnabled
-              ? 'bg-slate-800/80 border-slate-700 text-indigo-400 hover:text-indigo-300'
-              : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400'
+              ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100'
+              : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
           }`}
         >
           <Smartphone size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -70,10 +71,10 @@ export const Header: React.FC = () => {
           onClick={toggleSound}
           title={settings.soundEnabled ? 'Sound enabled' : 'Sound muted'}
           aria-label="Toggle sound effects"
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
             settings.soundEnabled
-              ? 'bg-slate-800/80 border-slate-700 text-indigo-400 hover:text-indigo-300'
-              : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400'
+              ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100'
+              : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
           }`}
         >
           {settings.soundEnabled ? (
@@ -91,7 +92,7 @@ export const Header: React.FC = () => {
           }}
           title="Game Rules & Guide"
           aria-label="Game rules and guide"
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center transition-all cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
         >
           <HelpCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
         </button>
@@ -105,7 +106,7 @@ export const Header: React.FC = () => {
             }}
             title="Exit / Restart Game"
             aria-label="Exit or restart game"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 border border-slate-700 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition-all cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
           >
             <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>

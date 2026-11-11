@@ -21,12 +21,12 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantMap = {
-    primary: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40',
-    danger: 'bg-rose-500/20 text-rose-300 border border-rose-500/40',
-    success: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
-    warning: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
-    neutral: 'bg-slate-800 text-slate-300 border border-slate-700',
-    glow: 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 text-indigo-200 border border-indigo-400/50 shadow-sm shadow-indigo-500/20'
+    primary: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    danger: 'bg-rose-50 text-rose-700 border border-rose-200',
+    success: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    warning: 'bg-amber-50 text-amber-800 border border-amber-200',
+    neutral: 'bg-slate-100 text-slate-700 border border-slate-200',
+    glow: 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold'
   };
 
   return (

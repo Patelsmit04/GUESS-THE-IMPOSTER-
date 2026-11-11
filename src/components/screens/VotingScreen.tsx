@@ -64,32 +64,32 @@ export const VotingScreen: React.FC = () => {
   // If private voting is on and this voter hasn't confirmed they are looking at the screen alone:
   if (isPrivate && !isVoterReady) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-3 sm:px-4 py-3 sm:py-6 select-none text-center">
+      <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full px-3 sm:px-4 py-2 sm:py-6 select-none text-center">
         <motion.div
           initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl sm:rounded-3xl bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-3 sm:mb-5 shadow-xl shrink-0"
+          className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl sm:rounded-3xl bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center text-indigo-600 mb-3 sm:mb-5 shadow-xs shrink-0"
         >
           <Vote size={32} className="sm:w-9 sm:h-9" />
         </motion.div>
 
-        <span className="text-[10px] sm:text-xs font-black tracking-widest text-indigo-400 uppercase block mb-1">
+        <span className="text-[10px] sm:text-xs font-black tracking-widest text-indigo-600 uppercase block mb-1">
           Secret Ballot #{currentVoterIndex + 1} of {players.length}
         </span>
 
-        <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight mb-1">
+        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 uppercase tracking-tight mb-1">
           Pass Phone To
         </h2>
 
-        <div className="my-3 sm:my-5 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-indigo-500/40 shadow-2xl flex flex-col items-center gap-2 sm:gap-3 w-full">
+        <div className="my-3 sm:my-5 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border-2 border-slate-200 shadow-sm flex flex-col items-center gap-2 sm:gap-3 w-full">
           <Avatar emoji={currentVoter.avatar} size="lg" highlight pulse />
-          <span className="text-xl sm:text-3xl font-black text-white truncate max-w-[220px]">
+          <span className="text-xl sm:text-3xl font-black text-slate-900 truncate max-w-[220px]">
             {currentVoter.name}
           </span>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-slate-300 text-[11px] sm:text-xs mb-5 sm:mb-7">
-          <EyeOff size={13} className="text-amber-400 shrink-0" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] sm:text-xs mb-5 sm:mb-7">
+          <EyeOff size={13} className="text-amber-500 shrink-0" />
           <span>Keep your vote secret from others</span>
         </div>
 
@@ -117,19 +117,19 @@ export const VotingScreen: React.FC = () => {
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 select-none">
       {/* Header */}
       <div className="text-center mb-2.5 sm:mb-4">
-        <div className="inline-flex items-center gap-1.5 mb-0.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-indigo-400">
+        <div className="inline-flex items-center gap-1.5 mb-0.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600">
           <Shield size={13} />
           <span>Voter: {currentVoter.name}</span>
         </div>
-        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
           Who Is The Imposter?
         </h2>
-        <p className="text-[11px] sm:text-xs md:text-sm text-slate-300">
+        <p className="text-[11px] sm:text-xs md:text-sm text-slate-600">
           Select the player you suspect of bluffing this round.
         </p>
       </div>
 
-      {/* Suspects Grid with responsive max-height */}
+      {/* Suspects Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4 max-h-[50dvh] sm:max-h-[56dvh] overflow-y-auto pr-0.5">
         <AnimatePresence>
           {players.map((suspect, idx) => {
@@ -142,31 +142,31 @@ export const VotingScreen: React.FC = () => {
                 whileHover={{ scale: 1.015 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleSelectTarget(suspect.id)}
-                className={`p-2.5 sm:p-3.5 rounded-2xl sm:rounded-3xl border-2 transition-all cursor-pointer flex flex-col items-center justify-between relative shadow-lg ${
+                className={`p-2.5 sm:p-3.5 rounded-2xl sm:rounded-3xl border-2 transition-all cursor-pointer flex flex-col items-center justify-between relative shadow-xs ${
                   isSelected
-                    ? 'bg-rose-950/40 border-rose-500 shadow-rose-600/30 ring-3 ring-rose-500/20'
-                    : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                    ? 'bg-rose-50 border-rose-600 shadow-sm'
+                    : 'bg-white border-slate-200 hover:border-slate-300'
                 }`}
               >
                 {/* Number indicator for hotkey */}
-                <span className="absolute top-2 left-2.5 text-[10px] font-black text-slate-500">
+                <span className="absolute top-2 left-2.5 text-[10px] font-black text-slate-400">
                   #{idx + 1}
                 </span>
 
                 {isSelected && (
                   <div className="absolute top-2 right-2">
-                    <CheckCircle2 size={18} className="text-rose-400" />
+                    <CheckCircle2 size={18} className="text-rose-600" />
                   </div>
                 )}
 
                 <Avatar emoji={suspect.avatar} size="md" highlight={isSelected} />
 
                 <div className="mt-1.5 text-center min-w-0 w-full">
-                  <span className="text-xs sm:text-sm md:text-base font-black text-white block truncate px-1">
+                  <span className="text-xs sm:text-sm md:text-base font-black text-slate-900 block truncate px-1">
                     {suspect.name}
                   </span>
                   {isSelf && (
-                    <span className="text-[9px] sm:text-[10px] text-slate-400 font-semibold block">
+                    <span className="text-[9px] sm:text-[10px] text-slate-500 font-semibold block">
                       (You)
                     </span>
                   )}
@@ -196,7 +196,7 @@ export const VotingScreen: React.FC = () => {
           disabled={!selectedTargetId || isSubmitting}
           leftIcon={<Vote size={20} />}
           onClick={handleConfirmVote}
-          className="shadow-rose-600/40 text-base sm:text-lg font-black py-3.5 sm:py-4"
+          className="text-base sm:text-lg font-black py-3.5 sm:py-4"
         >
           {selectedTargetId ? 'Lock In Vote' : 'Select a Suspect'}
         </Button>

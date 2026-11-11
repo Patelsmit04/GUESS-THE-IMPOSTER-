@@ -37,30 +37,30 @@ export const HowToPlayModal: React.FC = () => {
       title="How To Play"
       maxWidth="md"
     >
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {rules.map((rule, idx) => (
           <div
             key={idx}
-            className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60"
+            className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200"
           >
-            <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 shrink-0">
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs shrink-0">
               {rule.icon}
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white mb-0.5">{rule.title}</h4>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              <h4 className="text-sm font-bold text-slate-900 mb-0.5">{rule.title}</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 {rule.description}
               </p>
             </div>
           </div>
         ))}
 
-        <div className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/30 flex items-center gap-2 text-indigo-300 text-xs font-medium">
-          <HelpCircle size={16} className="shrink-0 text-indigo-400" />
+        <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-2 text-indigo-800 text-xs font-medium">
+          <HelpCircle size={16} className="shrink-0 text-indigo-600" />
           <span>Tip: Local Pass & Play requires only ONE phone or tablet for the whole party!</span>
         </div>
 
-        <div className="pt-2">
+        <div className="pt-1">
           <Button fullWidth variant="primary" size="md" onClick={() => setIsHowToPlayOpen(false)}>
             Got it, Let's Play!
           </Button>

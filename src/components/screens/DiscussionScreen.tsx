@@ -68,94 +68,99 @@ export const DiscussionScreen: React.FC = () => {
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 select-none">
       {/* Title */}
       <div className="text-center mb-2 sm:mb-3">
-        <span className="text-[10px] sm:text-xs font-black tracking-widest text-indigo-400 uppercase block mb-0.5 truncate">
+        <span className="text-[10px] sm:text-xs font-black tracking-widest text-indigo-600 uppercase block mb-0.5 truncate">
           Round {currentRound} • {category?.name}
         </span>
-        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
           Discussion Time
         </h2>
-        <p className="text-[11px] sm:text-xs md:text-sm text-slate-300">
+        <p className="text-[11px] sm:text-xs md:text-sm text-slate-600">
           Debate clues! Who hesitated? Whose clue sounded out of place?
         </p>
       </div>
 
-      {/* Timer Circular Widget - Responsive for small screens */}
+      {/* Timer Circular Widget */}
       <div className="my-auto flex flex-col items-center justify-center py-2 sm:py-3">
         <motion.div
           animate={isUrgent ? { scale: [1, 1.04, 1] } : undefined}
           transition={isUrgent ? { repeat: Infinity, duration: 1 } : undefined}
-          className={`relative w-36 h-36 sm:w-48 sm:h-48 rounded-full flex flex-col items-center justify-center border-4 shadow-2xl transition-colors duration-300 ${
+          className={`relative w-36 h-36 sm:w-48 sm:h-48 rounded-full flex flex-col items-center justify-center border-4 shadow-md transition-colors duration-300 ${
             isUrgent
-              ? 'bg-rose-950/40 border-rose-500 shadow-rose-600/30 ring-4 sm:ring-8 ring-rose-500/20'
-              : 'bg-slate-900 border-indigo-500/50 shadow-indigo-500/20 ring-2 sm:ring-4 ring-indigo-500/10'
+              ? 'bg-rose-50 border-rose-500'
+              : 'bg-white border-indigo-600'
           }`}
         >
           <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold uppercase mb-0.5">
-            <Clock size={13} className={isUrgent ? 'text-rose-400 animate-spin' : 'text-indigo-400'} />
-            <span className={isUrgent ? 'text-rose-400' : 'text-indigo-300'}>
+            <Clock size={13} className={isUrgent ? 'text-rose-600 animate-spin' : 'text-indigo-600'} />
+            <span className={isUrgent ? 'text-rose-600' : 'text-indigo-700'}>
               {discussionSecondsRemaining === 0 ? "Time's Up!" : 'Remaining'}
             </span>
           </div>
 
-          <div
-            className={`text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter ${
-              isUrgent ? 'text-rose-400 animate-pulse' : 'text-white'
-            }`}
-          >
+          <div className={`text-4xl sm:text-6xl font-black tracking-tight tabular-nums ${
+            isUrgent ? 'text-rose-600' : 'text-slate-900'
+          }`}>
             {formatTime(discussionSecondsRemaining)}
           </div>
 
-          {/* Quick controls inside timer */}
-          <div className="flex items-center gap-1.5 mt-1 sm:mt-2">
-            {isDiscussionRunning ? (
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  pauseDiscussion();
-                }}
-                className="p-1 sm:p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 cursor-pointer text-xs"
-                title="Pause timer (Space)"
-                aria-label="Pause timer"
-              >
-                <Pause size={13} />
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  resumeDiscussion();
-                }}
-                className="p-1 sm:p-1.5 rounded-lg bg-indigo-600 text-white border border-indigo-400 cursor-pointer text-xs"
-                title="Resume timer (Space)"
-                aria-label="Resume timer"
-              >
-                <Play size={13} />
-              </button>
-            )}
-
-            <button
-              onClick={handleAdd30s}
-              className="px-2 py-0.5 sm:py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-[10px] sm:text-xs font-bold cursor-pointer flex items-center gap-1"
-              title="Add 30 seconds"
-            >
-              <Plus size={11} />
-              <span>30s</span>
-            </button>
-          </div>
+          <span className="text-[9px] sm:text-[10px] text-slate-500 font-semibold mt-0.5">
+            Press Space to pause
+          </span>
         </motion.div>
+
+        {/* Timer quick controls */}
+        <div className="flex items-center gap-2 mt-3 sm:mt-4">
+          <button
+            type="button"
+            onClick={() => {
+              sound.playClick();
+              if (isDiscussionRunning) {
+                pauseDiscussion();
+              } else {
+                resumeDiscussion();
+              }
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+          >
+            {isDiscussionRunning ? (
+              <>
+                <Pause size={14} />
+                <span>Pause</span>
+              </>
+            ) : (
+              <>
+                <Play size={14} fill="currentColor" />
+                <span>Resume</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAdd30s}
+            className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1 cursor-pointer shadow-xs transition-colors"
+          >
+            <Plus size={14} />
+            <span>+30s</span>
+          </button>
+        </div>
       </div>
 
-      {/* Players Circle/Grid during discussion */}
-      <div className="mb-3 sm:mb-5">
-        <div className="text-center text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-          Suspects in the room ({players.length})
+      {/* Suspects in this round */}
+      <div className="mb-3 sm:mb-4 bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3 shadow-xs">
+        <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">
+          <span className="flex items-center gap-1">
+            <MessageCircle size={13} />
+            <span>Suspects Under Questioning</span>
+          </span>
+          <span>{players.length} Players</span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3.5 max-h-[18dvh] overflow-y-auto px-1">
+        <div className="flex items-center justify-start gap-2 sm:gap-3 overflow-x-auto pb-1 px-1">
           {players.map(p => (
-            <div key={p.id} className="flex flex-col items-center min-w-0">
+            <div key={p.id} className="flex flex-col items-center shrink-0">
               <Avatar emoji={p.avatar} size="sm" />
-              <span className="text-[10px] sm:text-xs font-bold text-slate-200 mt-0.5 max-w-[65px] truncate text-center">
+              <span className="text-[11px] font-bold text-slate-700 mt-1 truncate max-w-[65px] text-center">
                 {p.name}
               </span>
             </div>
@@ -163,23 +168,18 @@ export const DiscussionScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Action Button */}
-      <div className="mt-auto space-y-1.5 pt-1">
+      {/* Advance to Voting */}
+      <div className="mt-auto pt-1">
         <Button
           fullWidth
           size="xl"
-          variant="primary"
+          variant="danger"
           leftIcon={<Vote size={20} />}
           onClick={startVoting}
-          className="shadow-indigo-600/40 text-base sm:text-lg font-black py-3.5 sm:py-4"
+          className="py-3.5 sm:py-4 text-base sm:text-lg font-black"
         >
-          Ready to Vote
+          Proceed to Voting Ballot
         </Button>
-
-        <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-xs text-slate-400">
-          <MessageCircle size={12} className="text-indigo-400 shrink-0" />
-          <span>Everyone casts their secret ballot one by one</span>
-        </div>
       </div>
     </div>
   );

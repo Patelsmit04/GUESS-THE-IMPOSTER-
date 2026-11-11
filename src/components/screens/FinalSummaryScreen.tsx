@@ -45,10 +45,10 @@ export const FinalSummaryScreen: React.FC = () => {
         <Badge variant="glow" size="md" className="mb-1.5">
           Match Championship
         </Badge>
-        <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight uppercase">
           Final Tournament Results
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300">
+        <p className="text-xs sm:text-sm text-slate-600">
           All rounds complete! Bow down to the master of deception and deduction!
         </p>
       </div>
@@ -65,11 +65,11 @@ export const FinalSummaryScreen: React.FC = () => {
               className="flex-1 min-w-0 max-w-[95px] sm:max-w-[130px] flex flex-col items-center"
             >
               <Avatar emoji={runnerUp.avatar} size="md" />
-              <span className="text-[11px] sm:text-xs font-bold text-white mt-1 truncate max-w-full px-0.5">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-800 mt-1 truncate max-w-full px-0.5">
                 {runnerUp.name}
               </span>
-              <span className="text-[10px] sm:text-xs font-black text-slate-300">{runnerUp.score} pts</span>
-              <div className="w-full h-14 sm:h-20 rounded-t-2xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-2 border-slate-500/50 flex items-center justify-center text-sm sm:text-lg font-black text-slate-400 mt-1.5 shadow-lg">
+              <span className="text-[10px] sm:text-xs font-black text-slate-500">{runnerUp.score} pts</span>
+              <div className="w-full h-14 sm:h-20 rounded-t-2xl bg-slate-200 border-t-2 border-slate-400 flex items-center justify-center text-sm sm:text-lg font-black text-slate-700 mt-1.5 shadow-xs">
                 🥈 2nd
               </div>
             </motion.div>
@@ -89,12 +89,12 @@ export const FinalSummaryScreen: React.FC = () => {
                 </div>
                 <Avatar emoji={champion.avatar} size="lg" highlight pulse />
               </div>
-              <span className="text-xs sm:text-sm font-black text-amber-300 mt-1 truncate max-w-full px-0.5">
+              <span className="text-xs sm:text-sm font-black text-amber-700 mt-1 truncate max-w-full px-0.5">
                 {champion.name}
               </span>
-              <span className="text-xs sm:text-sm font-black text-white">{champion.score} pts</span>
-              <div className="w-full h-20 sm:h-28 rounded-t-2xl bg-gradient-to-t from-amber-950 via-slate-900 to-amber-900/60 border-t-2 border-amber-400 flex flex-col items-center justify-center text-sm sm:text-xl font-black text-amber-400 mt-1.5 shadow-2xl shadow-amber-500/20">
-                <Trophy size={20} className="sm:w-6 sm:h-6 text-amber-400 mb-0.5" />
+              <span className="text-xs sm:text-sm font-black text-slate-900">{champion.score} pts</span>
+              <div className="w-full h-20 sm:h-28 rounded-t-2xl bg-amber-100 border-t-2 border-amber-400 flex flex-col items-center justify-center text-sm sm:text-xl font-black text-amber-800 mt-1.5 shadow-sm">
+                <Trophy size={20} className="sm:w-6 sm:h-6 text-amber-600 mb-0.5" />
                 <span className="text-xs sm:text-base">1st MVP</span>
               </div>
             </motion.div>
@@ -109,11 +109,11 @@ export const FinalSummaryScreen: React.FC = () => {
               className="flex-1 min-w-0 max-w-[95px] sm:max-w-[130px] flex flex-col items-center"
             >
               <Avatar emoji={thirdPlace.avatar} size="md" />
-              <span className="text-[11px] sm:text-xs font-bold text-white mt-1 truncate max-w-full px-0.5">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-800 mt-1 truncate max-w-full px-0.5">
                 {thirdPlace.name}
               </span>
-              <span className="text-[10px] sm:text-xs font-black text-slate-300">{thirdPlace.score} pts</span>
-              <div className="w-full h-11 sm:h-14 rounded-t-2xl bg-gradient-to-t from-slate-900 to-amber-950/40 border-t-2 border-amber-700/50 flex items-center justify-center text-xs sm:text-lg font-black text-amber-600 mt-1.5 shadow-lg">
+              <span className="text-[10px] sm:text-xs font-black text-slate-500">{thirdPlace.score} pts</span>
+              <div className="w-full h-11 sm:h-14 rounded-t-2xl bg-amber-50 border-t-2 border-amber-600 flex items-center justify-center text-xs sm:text-lg font-black text-amber-800 mt-1.5 shadow-xs">
                 🥉 3rd
               </div>
             </motion.div>
@@ -121,34 +121,34 @@ export const FinalSummaryScreen: React.FC = () => {
         </div>
 
         {/* Match Statistics Summary */}
-        <div className="p-3 sm:p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-around text-center mb-3 sm:mb-4">
+        <div className="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-around text-center mb-3 sm:mb-4 shadow-xs">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
               Total Rounds
             </span>
-            <span className="text-base sm:text-lg font-black text-white">
+            <span className="text-base sm:text-lg font-black text-slate-900">
               {sessionStats.totalRoundsPlayed}
             </span>
           </div>
 
-          <div className="w-px h-7 sm:h-8 bg-slate-800" />
+          <div className="w-px h-7 sm:h-8 bg-slate-200" />
 
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-emerald-700 uppercase tracking-wider flex items-center justify-center gap-1">
               <ShieldCheck size={12} /> Crew Wins
             </span>
-            <span className="text-base sm:text-lg font-black text-emerald-300">
+            <span className="text-base sm:text-lg font-black text-emerald-800">
               {sessionStats.crewWins}
             </span>
           </div>
 
-          <div className="w-px h-7 sm:h-8 bg-slate-800" />
+          <div className="w-px h-7 sm:h-8 bg-slate-200" />
 
           <div>
-            <span className="text-[10px] sm:text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center justify-center gap-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-rose-700 uppercase tracking-wider flex items-center justify-center gap-1">
               <Flame size={12} /> Imposter Wins
             </span>
-            <span className="text-base sm:text-lg font-black text-rose-300">
+            <span className="text-base sm:text-lg font-black text-rose-800">
               {sessionStats.imposterWins}
             </span>
           </div>
@@ -163,7 +163,7 @@ export const FinalSummaryScreen: React.FC = () => {
           variant="primary"
           leftIcon={<RotateCcw size={20} />}
           onClick={handleRematch}
-          className="shadow-indigo-600/40 text-base sm:text-lg font-black py-3.5 sm:py-4"
+          className="text-base sm:text-lg font-black py-3.5 sm:py-4"
         >
           Play Again (Rematch)
         </Button>

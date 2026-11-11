@@ -58,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({
               sound.playClick();
               onClose();
             }}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
           />
 
           {/* Modal Container with max-height and internal scroll */}
@@ -67,13 +67,13 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-            className={`relative w-full ${maxStyles[maxWidth]} max-h-[90dvh] overflow-y-auto bg-slate-900 border border-slate-700/80 rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/80 z-10 text-left`}
+            className={`relative w-full ${maxStyles[maxWidth]} max-h-[90dvh] overflow-y-auto bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xl z-10 text-left`}
           >
             {/* Header */}
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800 mb-4 sm:mb-5 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10 -mt-1 pt-1">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100 mb-4 sm:mb-5 sticky top-0 bg-white/95 backdrop-blur-xs z-10 -mt-1 pt-1">
                 {title ? (
-                  <h3 className="text-lg sm:text-2xl font-black text-white tracking-wide truncate pr-2">
+                  <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-wide truncate pr-2">
                     {title}
                   </h3>
                 ) : <div />}
@@ -84,7 +84,7 @@ export const Modal: React.FC<ModalProps> = ({
                       sound.playClick();
                       onClose();
                     }}
-                    className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                     aria-label="Close modal"
                   >
                     <X size={20} />

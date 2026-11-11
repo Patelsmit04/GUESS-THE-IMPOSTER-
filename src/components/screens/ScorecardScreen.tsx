@@ -30,10 +30,10 @@ export const ScorecardScreen: React.FC = () => {
         <Badge variant="glow" size="sm" className="mb-1">
           Round {currentRound} Complete
         </Badge>
-        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
           Scoreboard
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300">
+        <p className="text-xs sm:text-sm text-slate-600">
           Points awarded for catching the imposter, successful bluffs, and accurate votes!
         </p>
       </div>
@@ -50,15 +50,15 @@ export const ScorecardScreen: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: rank * 0.08 }}
-              className={`p-2.5 sm:p-4 rounded-2xl border-2 flex items-center justify-between shadow-lg transition-all ${
+              className={`p-2.5 sm:p-4 rounded-2xl border-2 flex items-center justify-between shadow-xs transition-all ${
                 isLeader
-                  ? 'bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border-amber-400/70 shadow-amber-500/10'
-                  : 'bg-slate-900/80 border-slate-800'
+                  ? 'bg-amber-50/70 border-amber-400'
+                  : 'bg-white border-slate-200'
               }`}
             >
               {/* Rank & Avatar */}
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 mr-2">
-                <div className="w-6 sm:w-7 text-center font-black text-xs sm:text-sm text-slate-400 flex-shrink-0">
+                <div className="w-6 sm:w-7 text-center font-black text-xs sm:text-sm text-slate-500 flex-shrink-0">
                   {rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank + 1}`}
                 </div>
 
@@ -68,11 +68,11 @@ export const ScorecardScreen: React.FC = () => {
 
                 <div className="text-left min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-base font-bold text-white truncate max-w-[110px] sm:max-w-[200px]">
+                    <span className="text-xs sm:text-base font-bold text-slate-900 truncate max-w-[110px] sm:max-w-[200px]">
                       {player.name}
                     </span>
                     {isLeader && (
-                      <span className="flex-shrink-0 px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 text-[9px] sm:text-[10px] font-black border border-amber-400/30">
+                      <span className="flex-shrink-0 px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800 text-[9px] sm:text-[10px] font-black border border-amber-300">
                         Leader
                       </span>
                     )}
@@ -81,16 +81,16 @@ export const ScorecardScreen: React.FC = () => {
                   {/* Role in this round */}
                   <div className="flex items-center gap-1.5 mt-0.5">
                     {isImposter ? (
-                      <span className="text-[10px] sm:text-[11px] font-bold text-rose-400 flex items-center gap-0.5">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-rose-600 flex items-center gap-0.5">
                         <Flame size={11} /> Imposter
                       </span>
                     ) : (
-                      <span className="text-[10px] sm:text-[11px] font-bold text-emerald-400 flex items-center gap-0.5">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 flex items-center gap-0.5">
                         <ShieldCheck size={11} /> Crew
                       </span>
                     )}
-                    <span className="text-slate-500 text-[10px]">•</span>
-                    <span className="text-[10px] sm:text-[11px] text-slate-300 truncate">
+                    <span className="text-slate-400 text-[10px]">•</span>
+                    <span className="text-[10px] sm:text-[11px] text-slate-600 truncate">
                       +{player.roundScore} pts
                     </span>
                   </div>
@@ -99,10 +99,10 @@ export const ScorecardScreen: React.FC = () => {
 
               {/* Total Points */}
               <div className="text-right flex-shrink-0">
-                <span className="text-lg sm:text-2xl font-black text-white block">
+                <span className="text-lg sm:text-2xl font-black text-slate-900 block">
                   {player.score}
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   Total
                 </span>
               </div>
@@ -111,7 +111,7 @@ export const ScorecardScreen: React.FC = () => {
         })}
       </div>
 
-      {/* Actions: Option to play more rounds or conclude and view final standings */}
+      {/* Actions */}
       <div className="mt-auto space-y-2 sm:space-y-3 pt-2 pb-safe">
         <Button
           fullWidth
@@ -120,7 +120,7 @@ export const ScorecardScreen: React.FC = () => {
           leftIcon={<Play size={20} fill="currentColor" />}
           rightIcon={<Sparkles size={18} />}
           onClick={proceedToNextRound}
-          className="shadow-indigo-600/40 text-sm sm:text-base font-black py-3.5 sm:py-4"
+          className="text-sm sm:text-base font-black py-3.5 sm:py-4"
         >
           Continue to Next Round (Round {currentRound + 1})
         </Button>

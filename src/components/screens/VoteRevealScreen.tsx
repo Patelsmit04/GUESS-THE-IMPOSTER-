@@ -66,14 +66,14 @@ export const VoteRevealScreen: React.FC = () => {
         <Badge variant="danger" size="sm" className="mb-0.5">
           Elimination Ceremony
         </Badge>
-        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight uppercase">
+        <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
           {revealStep === 'TALLY'
             ? 'Counting The Votes...'
             : revealStep === 'ACCUSED'
             ? 'The Table Has Decided!'
             : 'Truth Revealed!'}
         </h2>
-        <p className="text-[11px] sm:text-xs md:text-sm text-slate-300">
+        <p className="text-[11px] sm:text-xs md:text-sm text-slate-600">
           {revealStep === 'TALLY'
             ? 'Tallying accusations from all players...'
             : eliminatedPlayer
@@ -84,7 +84,7 @@ export const VoteRevealScreen: React.FC = () => {
         {revealStep === 'TALLY' && (
           <button
             onClick={handleSkipDrumroll}
-            className="mt-1.5 text-[10px] sm:text-xs text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1 cursor-pointer"
+            className="mt-1.5 text-[10px] sm:text-xs text-indigo-600 hover:text-indigo-700 inline-flex items-center gap-1 cursor-pointer font-semibold"
           >
             <FastForward size={12} />
             <span>Skip build-up</span>
@@ -92,7 +92,7 @@ export const VoteRevealScreen: React.FC = () => {
         )}
       </div>
 
-      {/* Main Dramatic Presentation with responsive sizing */}
+      {/* Main Dramatic Presentation */}
       <div className="my-auto flex flex-col items-center justify-center py-1 sm:py-2">
         <AnimatePresence mode="wait">
           {eliminatedPlayer ? (
@@ -105,7 +105,7 @@ export const VoteRevealScreen: React.FC = () => {
             >
               {revealStep !== 'FLIPPED' ? (
                 /* Card Front - Accused Suspect */
-                <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-rose-500/50 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
+                <div className="p-4 sm:p-6 rounded-3xl bg-white border-2 border-rose-300 shadow-md flex flex-col items-center text-center relative overflow-hidden">
                   <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3">
                     <Badge variant="danger" size="sm">
                       {eliminatedPlayer.votesReceived} Votes
@@ -114,11 +114,11 @@ export const VoteRevealScreen: React.FC = () => {
 
                   <Avatar emoji={eliminatedPlayer.avatar} size="xl" highlight pulse />
 
-                  <h3 className="text-xl sm:text-3xl font-black text-white mt-2 sm:mt-3 mb-0.5 truncate max-w-[220px]">
+                  <h3 className="text-xl sm:text-3xl font-black text-slate-900 mt-2 sm:mt-3 mb-0.5 truncate max-w-[220px]">
                     {eliminatedPlayer.name}
                   </h3>
 
-                  <p className="text-[11px] sm:text-xs text-rose-300 font-semibold mb-3 sm:mb-4">
+                  <p className="text-[11px] sm:text-xs text-rose-600 font-semibold mb-3 sm:mb-4">
                     Most voted suspect this round
                   </p>
 
@@ -128,7 +128,7 @@ export const VoteRevealScreen: React.FC = () => {
                     variant="danger"
                     leftIcon={<ShieldAlert size={16} />}
                     onClick={handleFlipCard}
-                    className="py-3 sm:py-3.5 font-black shadow-rose-600/30 text-sm sm:text-base"
+                    className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
                   >
                     Reveal True Identity
                   </Button>
@@ -139,19 +139,19 @@ export const VoteRevealScreen: React.FC = () => {
                   initial={{ rotateY: -90, opacity: 0 }}
                   animate={{ rotateY: 0, opacity: 1 }}
                   transition={{ duration: 0.45 }}
-                  className={`p-4 sm:p-6 rounded-3xl border-2 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ${
+                  className={`p-4 sm:p-6 rounded-3xl border-2 shadow-md flex flex-col items-center text-center relative overflow-hidden bg-white ${
                     isImposterEliminated
-                      ? 'bg-gradient-to-b from-rose-950 to-slate-900 border-rose-500 shadow-rose-600/30'
-                      : 'bg-gradient-to-b from-slate-900 to-indigo-950/80 border-indigo-500/60 shadow-indigo-600/20'
+                      ? 'border-rose-400'
+                      : 'border-indigo-400'
                   }`}
                 >
-                  <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl mb-2 sm:mb-3 shadow-lg">
+                  <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl mb-2 sm:mb-3 shadow-xs">
                     {isImposterEliminated ? (
-                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-rose-500/20 border-2 border-rose-500/40 flex items-center justify-center text-rose-400">
+                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-rose-50 border-2 border-rose-200 flex items-center justify-center text-rose-600">
                         <Flame size={32} className="sm:w-10 sm:h-10" />
                       </div>
                     ) : (
-                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                      <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center text-emerald-600">
                         <ShieldCheck size={32} className="sm:w-10 sm:h-10" />
                       </div>
                     )}
@@ -159,17 +159,17 @@ export const VoteRevealScreen: React.FC = () => {
 
                   <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase mb-0.5">
                     {isImposterEliminated ? (
-                      <span className="text-rose-400">Guilty as Charged!</span>
+                      <span className="text-rose-600">Guilty as Charged!</span>
                     ) : (
-                      <span className="text-indigo-400">Wrongfully Accused!</span>
+                      <span className="text-indigo-600">Wrongfully Accused!</span>
                     )}
                   </span>
 
-                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-white mb-1.5 truncate max-w-[240px]">
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-slate-900 mb-1.5 truncate max-w-[240px]">
                     {eliminatedPlayer.name} was {isImposterEliminated ? 'THE IMPOSTER!' : 'CREW!'}
                   </h3>
 
-                  <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 mb-3 sm:mb-4 leading-relaxed line-clamp-3">
+                  <p className="text-[11px] sm:text-xs md:text-sm text-slate-600 mb-3 sm:mb-4 leading-relaxed line-clamp-3">
                     {isImposterEliminated
                       ? 'The Crew saw through the deception and caught the Imposter red-handed!'
                       : 'Tragedy! An innocent crew member was voted out, allowing the real Imposter to slip away!'}
@@ -184,59 +184,57 @@ export const VoteRevealScreen: React.FC = () => {
                     className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
                   >
                     {isImposterEliminated && settings.allowImposterGuess
-                      ? 'Imposter Last Chance Guess'
+                      ? 'Proceed to Imposter Guess'
                       : 'See Round Results'}
                   </Button>
                 </motion.div>
               )}
             </motion.div>
           ) : (
-            /* Tie situation */
-            <div className="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-amber-500/40 text-center max-w-[340px] sm:max-w-sm">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-2xl bg-amber-500/20 flex items-center justify-center text-2xl sm:text-3xl mb-2 sm:mb-3 text-amber-400">
-                ⚖️
+            /* Tie Result Presentation */
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="p-5 sm:p-6 rounded-3xl bg-white border-2 border-slate-200 shadow-md flex flex-col items-center text-center max-w-[340px] sm:max-w-sm"
+            >
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-50 border-2 border-amber-300 flex items-center justify-center text-2xl sm:text-3xl text-amber-600 mb-3 shadow-xs">
+                🤝
               </div>
-              <h3 className="text-lg sm:text-2xl font-black text-white mb-1 uppercase">
-                Tie Vote!
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-1">
+                Deadlocked Vote!
               </h3>
-              <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 mb-4 leading-relaxed">
-                The crew could not agree on who to eliminate. In the chaos, the Imposter evades justice!
+              <p className="text-xs sm:text-sm text-slate-600 mb-4">
+                No single player held a majority. Without a clear consensus, no one is eliminated and the Imposter survives!
               </p>
-              <Button
-                fullWidth
-                size="lg"
-                variant="primary"
-                rightIcon={<ArrowRight size={18} />}
-                onClick={() => setPhase('RESULT')}
-                className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
-              >
-                View Match Result
+              <Button fullWidth variant="primary" size="lg" onClick={() => setPhase('RESULT')}>
+                View Round Outcome
               </Button>
-            </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Vote Breakdown Grid with responsive scrolling */}
-      <div className="mb-2 sm:mb-4">
-        <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-1">
-          Vote Breakdown
-        </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 max-h-[16dvh] overflow-y-auto pr-0.5">
+      {/* Vote Breakdown Summary Table */}
+      <div className="mt-auto mb-1 bg-white border border-slate-200 rounded-2xl p-2.5 sm:p-3 shadow-xs max-h-[22dvh] overflow-y-auto">
+        <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5 px-0.5">
+          Accusations Breakdown
+        </span>
+
+        <div className="space-y-1">
           {players.map(p => (
             <div
               key={p.id}
-              className={`p-2 rounded-xl border flex items-center justify-between text-[11px] min-w-0 ${
+              className={`flex items-center justify-between text-xs px-2.5 py-1.5 rounded-xl ${
                 p.id === eliminatedPlayer?.id
-                  ? 'bg-rose-950/40 border-rose-500/60 text-rose-300 font-bold'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-300'
+                  ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200'
+                  : 'bg-slate-50 text-slate-700'
               }`}
             >
-              <div className="flex items-center gap-1.5 truncate">
-                <span className="shrink-0">{p.avatar}</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span>{p.avatar}</span>
                 <span className="truncate">{p.name}</span>
               </div>
-              <span className="px-1.5 py-0.5 rounded-md bg-slate-800 text-[10px] font-black shrink-0">
+              <span className="font-black shrink-0">
                 {p.votesReceived} {p.votesReceived === 1 ? 'vote' : 'votes'}
               </span>
             </div>
@@ -244,7 +242,7 @@ export const VoteRevealScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Imposter Guess Modal if triggered */}
+      {/* Imposter Guess Modal */}
       <ImposterGuessModal
         isOpen={showGuessModal}
         onResolved={() => {
