@@ -4,7 +4,7 @@ import { useGame } from '../../context/useGame';
 import { Button } from '../common/Button';
 import { Avatar } from '../common/Avatar';
 import { AVATAR_OPTIONS } from '../../data/categories';
-import { UserPlus, Trash2, Shuffle, ArrowRight, Settings, Clock, ShieldAlert, Sparkles, Check, Flame, Users } from 'lucide-react';
+import { UserPlus, Trash2, Shuffle, ArrowRight, Settings, Clock, Sparkles, Flame, Users } from 'lucide-react';
 import { sound } from '../../services/sound';
 
 const IMPOSTER_OPTIONS = [
@@ -394,29 +394,6 @@ export const SetupScreen: React.FC = () => {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Imposter word guess redemption */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 truncate">
-                  <ShieldAlert size={13} className="text-amber-600 shrink-0" />
-                  <span className="truncate">Imposter Can Guess Word:</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    updateSettings({ allowImposterGuess: !settings.allowImposterGuess });
-                    sound.playClick();
-                  }}
-                  className={`px-2.5 py-1 rounded-lg font-bold border transition-all cursor-pointer flex items-center gap-1 text-xs shrink-0 ${
-                    settings.allowImposterGuess
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                      : 'bg-slate-100 border-slate-200 text-slate-500'
-                  }`}
-                >
-                  {settings.allowImposterGuess && <Check size={12} />}
-                  <span>{settings.allowImposterGuess ? 'Enabled' : 'Disabled'}</span>
-                </button>
               </div>
 
               {/* Total match rounds */}

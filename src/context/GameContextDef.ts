@@ -26,7 +26,6 @@ export interface GameContextType {
   sessionStats: SessionStats;
   isRestartConfirmOpen: boolean;
   isHowToPlayOpen: boolean;
-  isImposterGuessOpen: boolean;
 
   // Actions
   setPhase: (phase: GamePhase) => void;
@@ -47,7 +46,7 @@ export interface GameContextType {
   startVoting: () => void;
   submitVote: (voterId: string, targetIds: string | string[]) => void;
   resolveVoteOutcome: () => void;
-  handleImposterGuess: (guessWord: string) => boolean;
+  finalizeRound: () => void;
   proceedToScorecard: () => void;
   proceedToNextRound: () => void;
   finishGameSummary: () => void;
@@ -56,7 +55,6 @@ export interface GameContextType {
   toggleHaptics: () => void;
   setIsRestartConfirmOpen: (open: boolean) => void;
   setIsHowToPlayOpen: (open: boolean) => void;
-  setIsImposterGuessOpen: (open: boolean) => void;
 }
 
 export const GameContext = createContext<GameContextType | undefined>(undefined);

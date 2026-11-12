@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type {
   GamePhase,
@@ -13,6 +13,7 @@ import { CATEGORIES, AVATAR_OPTIONS, DEFAULT_PLAYER_NAMES } from '../data/catego
 import { storage } from '../services/storage';
 import { sound } from '../services/sound';
 import { GameContext } from './GameContextDef';
+import { calculateRoundScores, tallyVotes } from '../utils/gameLogic';
 
 const createPlayerId = () => `p-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -46,7 +47,6 @@ const DEFAULT_SETTINGS: GameSettings = {
   playerCount: 4,
   imposterCount: 1,
   discussionTime: 60,
-  allowImposterGuess: true,
   soundEnabled: true,
   hapticsEnabled: true,
   privateVoting: true,
@@ -136,7 +136,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
   const [isRestartConfirmOpen, setIsRestartConfirmOpen] = useState<boolean>(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState<boolean>(false);
-  const [isImposterGuessOpen, setIsImposterGuessOpen] = useState<boolean>(false);
+  const finalizedRounds = useRef<Set<number>>(new Set());
 
   // Sync sound settings with sound engine
   useEffect(() => {
@@ -364,9 +364,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const submitVote = (voterId: string, targetIds: string | string[]) => {
     sound.playVoteSubmit();
 
-    const targets = Array.isArray(targetIds) ? targetIds : [targetIds];
+    const targets = [...new Set(Array.isArray(targetIds) ? targetIds : [targetIds])];
 
     setPlayers(prev => {
+      const voter = prev.find(p => p.id === voterId);
+      if (!voter || voter.hasVoted) return prev;
+
       const nextPlayers = prev.map(p => {
         if (p.id === voterId) {
           return {
@@ -379,13 +382,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return p;
       });
 
-      if (settings.privateVoting) {
-        if (currentVoterIndex + 1 < nextPlayers.length) {
-          setCurrentVoterIndex(idx => idx + 1);
-        } else {
-          // All have voted privately
-          resolveVoteOutcomeWithPlayers(nextPlayers);
-        }
+      if (currentVoterIndex + 1 < nextPlayers.length) {
+        setCurrentVoterIndex(idx => idx + 1);
+      } else {
+        resolveVoteOutcomeWithPlayers(nextPlayers);
       }
 
       return nextPlayers;
@@ -393,19 +393,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const resolveVoteOutcomeWithPlayers = (currentPlayersList: Player[]) => {
-    // Tally votes from all ballots
-    const voteCounts: Record<string, number> = {};
-    currentPlayersList.forEach(p => {
-      const targets = p.votedForIds && p.votedForIds.length > 0
-        ? p.votedForIds
-        : p.votedForId ? [p.votedForId] : [];
-
-      targets.forEach(targetId => {
-        if (targetId && targetId !== 'SKIP') {
-          voteCounts[targetId] = (voteCounts[targetId] || 0) + 1;
-        }
-      });
-    });
+    const requiredVotes = Math.max(1, Math.min(settings.imposterCount, currentPlayersList.length - 1));
+    const voteCounts = tallyVotes(currentPlayersList, requiredVotes);
 
     // Update votes received
     const updatedPlayers = currentPlayersList.map(p => ({
@@ -436,12 +425,13 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const caughtImposters = imposterCaught && eliminated ? [eliminated.id] : [];
     const remainingImposters = imposterIds.filter(id => id !== eliminated?.id);
 
-    const isCrewWin = imposterCaught;
+    const isCrewWin = imposterCaught && remainingImposters.length === 0;
 
     const updatedPlayersWithElimination = updatedPlayers.map(p => ({
       ...p,
       isEliminated: eliminated ? p.id === eliminated.id : false
     }));
+    setPlayers(updatedPlayersWithElimination);
 
     let reason = '';
     if (isTie) {
@@ -472,14 +462,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       caughtImposters,
       remainingImposters,
       votesSummary: voteCounts,
-      imposterGuessedWord: false,
       reason
     };
 
     setRoundResult(initialResult);
-
-    // Calculate score points immediately so the scorecard updates right after voting!
-    awardPoints(initialResult, updatedPlayersWithElimination);
 
     setPhase('VOTE_REVEAL');
   };
@@ -488,72 +474,12 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     resolveVoteOutcomeWithPlayers(players);
   };
 
-  const handleImposterGuess = (guessWord: string): boolean => {
-    if (!secretWordItem || !roundResult) return false;
+  const finalizeRound = () => {
+    if (!roundResult || finalizedRounds.current.has(roundResult.roundNumber)) return;
+    finalizedRounds.current.add(roundResult.roundNumber);
 
-    const cleanGuess = guessWord.trim().toLowerCase();
-    const cleanSecret = secretWordItem.word.trim().toLowerCase();
-
-    const isCorrect = cleanGuess === cleanSecret;
-
-    if (isCorrect) {
-      sound.playCrewWin();
-      // Imposter flips the result to Imposter Win!
-      const updatedResult: RoundResult = {
-        ...roundResult,
-        winner: 'IMPOSTER',
-        imposterGuessedWord: true,
-        imposterGuessAttempt: guessWord,
-        reason: `Caught, but the Imposter brilliantly guessed "${secretWordItem.word}" and stole the victory!`
-      };
-      setRoundResult(updatedResult);
-      awardPoints(updatedResult);
-      return true;
-    } else {
-      sound.playWrong();
-      const updatedResult: RoundResult = {
-        ...roundResult,
-        imposterGuessedWord: false,
-        imposterGuessAttempt: guessWord,
-        reason: `The Imposter guessed "${guessWord}", but the secret word was "${secretWordItem.word}". Crew wins!`
-      };
-      setRoundResult(updatedResult);
-      awardPoints(updatedResult);
-      return false;
-    }
-  };
-
-  const awardPoints = (finalResult: RoundResult, currentPlayersList?: Player[]) => {
-    const isCrewWin = finalResult.winner === 'CREW';
-    const imposterIdSet = new Set(finalResult.imposterIds);
-    const targetPlayers = currentPlayersList || players;
-
-    const updated = targetPlayers.map(player => {
-      let earned = 0;
-      const targets = player.votedForIds && player.votedForIds.length > 0
-        ? player.votedForIds
-        : player.votedForId ? [player.votedForId] : [];
-
-      if (player.role === 'CREW') {
-        if (isCrewWin) earned += 100;
-        // Reward +25 pts for each correct imposter identified in ballot
-        const correctVotes = targets.filter(t => imposterIdSet.has(t)).length;
-        earned += correctVotes * 25;
-      } else {
-        // Imposter
-        if (!isCrewWin) {
-          earned += finalResult.imposterGuessedWord ? 150 : 200;
-        } else if (finalResult.imposterGuessedWord && finalResult.eliminatedPlayerId === player.id) {
-          earned += 150;
-        }
-      }
-
-      return {
-        ...player,
-        roundScore: earned,
-        score: player.score + earned
-      };
-    });
+    const updated = calculateRoundScores(players, roundResult);
+    const isCrewWin = roundResult.winner === 'CREW';
 
     setPlayers(updated);
 
@@ -587,6 +513,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const resetEntireGame = () => {
+    finalizedRounds.current.clear();
     setCurrentRound(1);
     setClueRoundCycle(1);
     setPlayers(prev =>
@@ -626,7 +553,6 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         sessionStats,
         isRestartConfirmOpen,
         isHowToPlayOpen,
-        isImposterGuessOpen,
 
         setPhase,
         updateSettings,
@@ -646,7 +572,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         startVoting,
         submitVote,
         resolveVoteOutcome,
-        handleImposterGuess,
+        finalizeRound,
         proceedToScorecard,
         proceedToNextRound,
         finishGameSummary,
@@ -654,8 +580,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         toggleSound,
         toggleHaptics,
         setIsRestartConfirmOpen,
-        setIsHowToPlayOpen,
-        setIsImposterGuessOpen
+        setIsHowToPlayOpen
       }}
     >
       {children}

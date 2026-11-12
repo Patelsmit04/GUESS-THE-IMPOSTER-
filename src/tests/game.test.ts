@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CATEGORIES } from '../data/categories';
 import type { Player, RoundResult, WordItem } from '../types/game';
+import { calculateRoundScores, tallyVotes } from '../utils/gameLogic';
 
 describe('Categories and Word Packs Integrity', () => {
   it('should have 12 rich categories with 16 words each (192 total words)', () => {
@@ -136,6 +137,23 @@ describe('Voting and Outcome Logic', () => {
     expect(isTie).toBe(true);
     // On tie, no one is eliminated and the Imposter escapes
   });
+
+  it('counts valid multi-target ballots once and ignores incomplete or duplicate targets', () => {
+    const ballots = mockPlayers.map(player => ({
+      ...player,
+      votedForIds: player.id === 'p-1'
+        ? ['p-3', 'p-3']
+        : player.id === 'p-2'
+          ? ['p-3', 'p-4']
+          : ['p-1'],
+      hasVoted: true
+    }));
+
+    expect(tallyVotes(ballots, 2)).toEqual({
+      'p-3': 1,
+      'p-4': 1
+    });
+  });
 });
 
 describe('Scoring Accuracy & Unlimited Round Progression', () => {
@@ -155,7 +173,6 @@ describe('Scoring Accuracy & Unlimited Round Progression', () => {
       categoryName: 'Food',
       imposterIds: [imposterId],
       eliminatedPlayerId: imposterId,
-      imposterGuessedWord: false,
       reason: 'Crew caught the imposter'
     };
 
@@ -198,6 +215,29 @@ describe('Scoring Accuracy & Unlimited Round Progression', () => {
 
     expect(scores['p-1']).toBe(225);
     expect(scores['p-3']).toBe(200);
+  });
+
+  it('adds each finalized round score to the stable player total', () => {
+    const result: RoundResult = {
+      roundNumber: 2,
+      winner: 'CREW',
+      secretWord: 'Pizza',
+      categoryName: 'Food',
+      imposterIds: ['p-3'],
+      eliminatedPlayerId: 'p-3',
+      votesSummary: { 'p-3': 3 },
+      reason: 'Crew caught the imposter'
+    };
+    const players: Player[] = [
+      { id: 'p-1', name: 'Alice', avatar: '🦊', color: '', role: 'CREW', score: 10, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-3'], votesReceived: 0, isEliminated: false },
+      { id: 'p-2', name: 'Bob', avatar: '🤖', color: '', role: 'CREW', score: 8, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-1'], votesReceived: 0, isEliminated: false },
+      { id: 'p-3', name: 'Charlie', avatar: '🦁', color: '', role: 'IMPOSTER', score: 5, roundScore: 0, clueGiven: true, hasVoted: true, votedForIds: ['p-1'], votesReceived: 0, isEliminated: true }
+    ];
+
+    const updated = calculateRoundScores(players, result);
+
+    expect(updated.map(player => player.score)).toEqual([135, 108, 5]);
+    expect(updated.map(player => player.roundScore)).toEqual([125, 100, 0]);
   });
 
   it('supports multiple cycles of clue rounds within the same game round', () => {

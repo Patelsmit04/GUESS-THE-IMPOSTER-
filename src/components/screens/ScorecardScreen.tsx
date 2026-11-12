@@ -24,6 +24,11 @@ export const ScorecardScreen: React.FC = () => {
 
   // Sort players by total score descending
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const previousRankById = new Map(
+    [...players]
+      .sort((a, b) => (b.score - b.roundScore) - (a.score - a.roundScore))
+      .map((player, rank) => [player.id, rank])
+  );
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-3 sm:px-4 py-3 sm:py-4 select-none">
@@ -44,6 +49,7 @@ export const ScorecardScreen: React.FC = () => {
       <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6 overflow-y-auto pr-1 max-h-[46dvh] sm:max-h-[52dvh]">
         {sortedPlayers.map((player, rank) => {
           const isLeader = rank === 0 && player.score > 0;
+          const rankingChanged = previousRankById.get(player.id) !== rank;
           const isImposter = player.role === 'IMPOSTER';
           const correctPicks = (!isImposter && roundResult?.imposterIds && player.votedForIds)
             ? player.votedForIds.filter(id => roundResult.imposterIds.includes(id)).length
@@ -81,6 +87,11 @@ export const ScorecardScreen: React.FC = () => {
                         Leader
                       </span>
                     )}
+                    {rankingChanged && (
+                      <span className="flex-shrink-0 px-1.5 py-0.2 rounded-md bg-indigo-100 text-indigo-700 text-[9px] sm:text-[10px] font-black border border-indigo-200">
+                        Rank changed
+                      </span>
+                    )}
                   </div>
 
                   {/* Role in this round */}
@@ -109,9 +120,14 @@ export const ScorecardScreen: React.FC = () => {
 
               {/* Total Points */}
               <div className="text-right flex-shrink-0">
-                <span className="text-lg sm:text-2xl font-black text-slate-900 block">
+                <motion.span
+                  key={player.score}
+                  initial={{ opacity: 0.35, y: 5, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="text-lg sm:text-2xl font-black text-slate-900 block"
+                >
                   {player.score}
-                </span>
+                </motion.span>
                 <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   Total
                 </span>

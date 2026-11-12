@@ -18,7 +18,6 @@ Designed for family game nights, party gatherings, and casual play — only requ
   - Configurable discussion countdown timer with warning pulse and auditory ticks.
   - Secret ballot mode allowing each player to vote in complete privacy.
 - **Dramatic Game-Show Vote Reveal**: Suspenseful drumroll, accusation spotlight, and dramatic role flip.
-- **Imposter Redemption Mini-game**: Caught imposters get one desperate chance to guess the secret word to steal victory.
 - **Dynamic Scoreboard & Podium**: Tracks cumulative scores, correct voter bonuses (+25 pts), round rankings, and crowning match champions.
 
 ---

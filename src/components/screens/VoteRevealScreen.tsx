@@ -4,7 +4,6 @@ import { useGame } from '../../context/useGame';
 import { Avatar } from '../common/Avatar';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { ImposterGuessModal } from './ImposterGuessModal';
 import { ShieldAlert, ShieldCheck, Flame, ArrowRight, FastForward } from 'lucide-react';
 import { sound } from '../../services/sound';
 
@@ -12,12 +11,11 @@ export const VoteRevealScreen: React.FC = () => {
   const {
     players,
     roundResult,
-    settings,
-    setPhase
+    setPhase,
+    finalizeRound
   } = useGame();
 
   const [revealStep, setRevealStep] = useState<'TALLY' | 'ACCUSED' | 'FLIPPED'>('TALLY');
-  const [showGuessModal, setShowGuessModal] = useState<boolean>(false);
 
   useEffect(() => {
     // Stage 1 -> Drumroll sound
@@ -52,11 +50,8 @@ export const VoteRevealScreen: React.FC = () => {
   };
 
   const handleProceed = () => {
-    if (isImposterEliminated && settings.allowImposterGuess && !roundResult.imposterGuessedWord) {
-      setShowGuessModal(true);
-    } else {
-      setPhase('RESULT');
-    }
+    finalizeRound();
+    setPhase('RESULT');
   };
 
   return (
@@ -181,9 +176,7 @@ export const VoteRevealScreen: React.FC = () => {
                     onClick={handleProceed}
                     className="py-3 sm:py-3.5 font-black text-sm sm:text-base"
                   >
-                    {isImposterEliminated && settings.allowImposterGuess
-                      ? 'Proceed to Imposter Guess'
-                      : 'See Round Results'}
+                    See Round Results
                   </Button>
                 </motion.div>
               )}
@@ -204,7 +197,15 @@ export const VoteRevealScreen: React.FC = () => {
               <p className="text-xs sm:text-sm text-slate-600 mb-4">
                 No single player held a majority. Without a clear consensus, no one is eliminated and the Imposter team survives!
               </p>
-              <Button fullWidth variant="primary" size="lg" onClick={() => setPhase('RESULT')}>
+              <Button
+                fullWidth
+                variant="primary"
+                size="lg"
+                onClick={() => {
+                  finalizeRound();
+                  setPhase('RESULT');
+                }}
+              >
                 View Round Outcome
               </Button>
             </motion.div>
@@ -242,15 +243,6 @@ export const VoteRevealScreen: React.FC = () => {
             ))}
         </div>
       </div>
-
-      {/* Imposter Guess Modal */}
-      <ImposterGuessModal
-        isOpen={showGuessModal}
-        onResolved={() => {
-          setShowGuessModal(false);
-          setPhase('RESULT');
-        }}
-      />
     </div>
   );
 };
