@@ -26,7 +26,7 @@ export const HowToPlayModal: React.FC = () => {
     {
       icon: <Award className="text-emerald-400" size={24} />,
       title: '4. Catch the Imposter & Win',
-      description: 'If the Crew eliminates the Imposter, the Crew wins! But beware: the Imposter gets one last guess at the secret word to steal victory!'
+      description: 'If the Crew eliminates all Imposters, the Crew wins. Otherwise, the Imposters survive and win the round!'
     }
   ];
 

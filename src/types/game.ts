@@ -52,7 +52,6 @@ export interface GameSettings {
   playerCount: number;
   imposterCount: number;
   discussionTime: number; // in seconds (0 = untimed)
-  allowImposterGuess: boolean;
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   privateVoting: boolean;
@@ -71,8 +70,6 @@ export interface RoundResult {
   caughtImposters?: string[];
   remainingImposters?: string[];
   votesSummary?: Record<string, number>;
-  imposterGuessedWord: boolean;
-  imposterGuessAttempt?: string;
   reason: string;
 }
 
