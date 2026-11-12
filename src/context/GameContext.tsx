@@ -13,7 +13,7 @@ import { CATEGORIES, AVATAR_OPTIONS, DEFAULT_PLAYER_NAMES } from '../data/catego
 import { storage } from '../services/storage';
 import { sound } from '../services/sound';
 import { GameContext } from './GameContextDef';
-import { calculateRoundScores, tallyVotes } from '../utils/gameLogic';
+import { aggregateVotes, calculateRoundScores } from '../utils/gameLogic';
 
 const createPlayerId = () => `p-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -362,61 +362,57 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const submitVote = (voterId: string, targetIds: string | string[]) => {
-    sound.playVoteSubmit();
-
     const targets = [...new Set(Array.isArray(targetIds) ? targetIds : [targetIds])];
+    const requiredVotes = Math.max(1, Math.min(settings.imposterCount, players.length - 1));
+    const voter = players.find(player => player.id === voterId);
+    const eligibleIds = new Set(players.map(player => player.id));
+    const isValidBallot = voter &&
+      !voter.hasVoted &&
+      targets.length === requiredVotes &&
+      targets.every((targetId, index) =>
+        targetId !== voterId &&
+        eligibleIds.has(targetId) &&
+        targets.indexOf(targetId) === index
+      );
 
-    setPlayers(prev => {
-      const voter = prev.find(p => p.id === voterId);
-      if (!voter || voter.hasVoted) return prev;
+    if (!isValidBallot) return;
 
-      const nextPlayers = prev.map(p => {
-        if (p.id === voterId) {
-          return {
-            ...p,
+    sound.playVoteSubmit();
+    const nextPlayers = players.map(player =>
+      player.id === voterId
+        ? {
+            ...player,
             hasVoted: true,
             votedForId: targets[0] || null,
             votedForIds: targets
-          };
-        }
-        return p;
-      });
+          }
+        : player
+    );
 
-      if (currentVoterIndex + 1 < nextPlayers.length) {
-        setCurrentVoterIndex(idx => idx + 1);
-      } else {
-        resolveVoteOutcomeWithPlayers(nextPlayers);
-      }
-
-      return nextPlayers;
-    });
+    setPlayers(nextPlayers);
+    if (nextPlayers.every(player => player.hasVoted)) {
+      resolveVoteOutcomeWithPlayers(nextPlayers);
+    } else {
+      setCurrentVoterIndex(index => index + 1);
+    }
   };
 
   const resolveVoteOutcomeWithPlayers = (currentPlayersList: Player[]) => {
+    if (!currentPlayersList.every(player => player.hasVoted)) return;
+
     const requiredVotes = Math.max(1, Math.min(settings.imposterCount, currentPlayersList.length - 1));
-    const voteCounts = tallyVotes(currentPlayersList, requiredVotes);
+    const { voteCounts, highestVotedPlayerIds, maxVotes } = aggregateVotes(currentPlayersList, requiredVotes);
 
     // Update votes received
     const updatedPlayers = currentPlayersList.map(p => ({
       ...p,
-      votesReceived: voteCounts[p.id] || 0
+      votesReceived: voteCounts[p.id]
     }));
 
-    // Find highest voted
-    let maxVotes = 0;
-    let highestVotedPlayers: Player[] = [];
-
-    updatedPlayers.forEach(p => {
-      if (p.votesReceived > maxVotes) {
-        maxVotes = p.votesReceived;
-        highestVotedPlayers = [p];
-      } else if (p.votesReceived === maxVotes && maxVotes > 0) {
-        highestVotedPlayers.push(p);
-      }
-    });
-
-    const isTie = highestVotedPlayers.length !== 1 || maxVotes === 0;
-    const eliminated = isTie ? null : highestVotedPlayers[0];
+    const isTie = highestVotedPlayerIds.length !== 1 || maxVotes === 0;
+    const eliminated = isTie
+      ? null
+      : updatedPlayers.find(player => player.id === highestVotedPlayerIds[0]) || null;
 
     const allImposters = updatedPlayers.filter(p => p.role === 'IMPOSTER');
     const imposterIds = allImposters.map(p => p.id);

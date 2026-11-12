@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CATEGORIES } from '../data/categories';
 import type { Player, RoundResult, WordItem } from '../types/game';
-import { calculateRoundScores, tallyVotes } from '../utils/gameLogic';
+import { aggregateVotes, calculateRoundScores, tallyVotes } from '../utils/gameLogic';
 
 describe('Categories and Word Packs Integrity', () => {
   it('should have 12 rich categories with 16 words each (192 total words)', () => {
@@ -114,6 +114,60 @@ describe('Voting and Outcome Logic', () => {
     expect(highest.length).toBe(1);
     expect(highest[0].id).toBe('p-3');
     expect(highest[0].role).toBe('IMPOSTER');
+  });
+
+  it('uses one authoritative ID-based aggregation for the full ballot flow', () => {
+    const players = mockPlayers.map(player => ({
+      ...player,
+      votedForIds: player.id === 'p-1' || player.id === 'p-2' ? ['p-3'] : player.id === 'p-3' ? ['p-4'] : ['p-1']
+    }));
+    const result = aggregateVotes(players, 1);
+
+    expect(result.voteCounts).toEqual({ 'p-1': 1, 'p-2': 0, 'p-3': 2, 'p-4': 1 });
+    expect(result.highestVotedPlayerIds).toEqual(['p-3']);
+    expect(result.maxVotes).toBe(2);
+  });
+
+  it('matches the four-player production scenario', () => {
+    const players = mockPlayers.map((player, index) => ({
+      ...player,
+      votedForIds: [['p-3'], ['p-3'], ['p-4'], ['p-1']][index]
+    }));
+    const result = aggregateVotes(players, 1);
+
+    expect(result.voteCounts).toEqual({ 'p-1': 1, 'p-2': 0, 'p-3': 2, 'p-4': 1 });
+    expect(result.highestVotedPlayerIds).toEqual(['p-3']);
+  });
+
+  it('keeps zero-vote players in the finalized summary', () => {
+    const players = mockPlayers.slice(0, 4).map((player, index) => ({
+      ...player,
+      votedForIds: index < 2 ? ['p-3'] : ['p-1']
+    }));
+    const result = aggregateVotes(players, 1);
+
+    expect(Object.keys(result.voteCounts)).toEqual(['p-1', 'p-2', 'p-3', 'p-4']);
+    expect(result.voteCounts['p-2']).toBe(0);
+    expect(result.voteCounts['p-4']).toBe(0);
+  });
+
+  it.each([1, 2, 3, 4])('counts all %i targets in a multi-imposter ballot', (requiredVotes) => {
+    const players = Array.from({ length: 9 }, (_, index) => ({
+      ...mockPlayers[index % mockPlayers.length],
+      id: `p-${index + 1}`,
+      name: `Player ${index + 1}`,
+      votedForIds: []
+    })).map((player, index, roster) => ({
+      ...player,
+      votedForIds: Array.from({ length: requiredVotes }, (_, targetIndex) =>
+        roster[(index + targetIndex + 1) % roster.length].id
+      )
+    }));
+    const result = aggregateVotes(players, requiredVotes);
+
+    expect(Object.values(result.voteCounts).reduce((sum, count) => sum + count, 0)).toBe(
+      players.length * requiredVotes
+    );
   });
 
   it('correctly handles ties where no single player has a majority', () => {
