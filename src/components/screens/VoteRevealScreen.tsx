@@ -27,6 +27,8 @@ export const VoteRevealScreen: React.FC = () => {
   if (!roundResult) return null;
 
   const eliminatedPlayer = players.find(p => p.id === roundResult.eliminatedPlayerId);
+  const voteCounts = roundResult.votesSummary;
+  const hasValidVoteSummary = !!voteCounts && players.every(player => Number.isInteger(voteCounts[player.id]) && voteCounts[player.id] >= 0);
   const isImposterEliminated = eliminatedPlayer?.role === 'IMPOSTER';
 
   const handleSkipDrumroll = () => {
@@ -53,6 +55,19 @@ export const VoteRevealScreen: React.FC = () => {
     finalizeRound();
     setPhase('RESULT');
   };
+
+  if (!hasValidVoteSummary) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-4 text-center">
+        <div className="max-w-md rounded-3xl border-2 border-rose-200 bg-white p-6 shadow-md">
+          <h2 className="text-xl font-black uppercase text-slate-900">Vote results unavailable</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            The completed ballots could not be verified. No elimination result was displayed.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-2 sm:px-4 py-2 sm:py-3 select-none">
@@ -103,7 +118,7 @@ export const VoteRevealScreen: React.FC = () => {
                 <div className="p-4 sm:p-6 rounded-3xl bg-white border-2 border-rose-300 shadow-md flex flex-col items-center text-center relative overflow-hidden">
                   <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3">
                     <Badge variant="danger" size="sm">
-                      {eliminatedPlayer.votesReceived} Votes
+                      {voteCounts[eliminatedPlayer.id]} Votes
                     </Badge>
                   </div>
 
@@ -222,7 +237,7 @@ export const VoteRevealScreen: React.FC = () => {
 
         <div className="space-y-1">
           {[...players]
-            .sort((a, b) => b.votesReceived - a.votesReceived)
+            .sort((a, b) => voteCounts[b.id] - voteCounts[a.id])
             .map(p => (
               <div
                 key={p.id}
@@ -237,7 +252,7 @@ export const VoteRevealScreen: React.FC = () => {
                   <span className="truncate">{p.name}</span>
                 </div>
                 <span className="font-black shrink-0">
-                  {p.votesReceived} {p.votesReceived === 1 ? 'vote' : 'votes'}
+                  {voteCounts[p.id]} {voteCounts[p.id] === 1 ? 'vote' : 'votes'}
                 </span>
               </div>
             ))}
